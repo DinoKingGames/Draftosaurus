@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><project name="Proyecto Draftosaurus" company="" webLink="" view-date="2025-06-25" view-index="0" gantt-divider-location="1021" resource-divider-location="300" version="3.3.3316" locale="es_ES">
+    <description/>
+    <view zooming-state="default:3" id="gantt-chart">
+        <field id="tpd3" name="Nombre" width="355" order="0"/>
+        <field id="tpd4" name="Fecha de inicio" width="135" order="1"/>
+        <field id="tpd5" name="Fecha de fin" width="131" order="2"/>
+        <field id="tpd15" name="Notas" width="20" order="3"/>
+        <field id="tpd9" name="Antecesores" width="346" order="3"/>
+        <field id="tpd10" name="Id." width="38" order="4"/>
+        <option id="filter.completedTasks" value="false"/>
+        <option id="filter.dueTodayTasks" value="false"/>
+        <option id="filter.overdueTasks" value="false"/>
+        <option id="filter.inProgressTodayTasks" value="false"/>
+    </view>
+    <view id="resource-table">
+        <field id="0" name="Nombre" width="210" order="0"/>
+        <field id="1" name="Función" width="86" order="1"/>
+    </view>
+    <!-- -->
+    <calendars>
+        <day-types>
+            <day-type id="0"/>
+            <day-type id="1"/>
+            <default-week id="1" name="default" sun="0" mon="0" tue="0" wed="0" thu="0" fri="0" sat="0"/>
+            <only-show-weekends value="false"/>
+            <overriden-day-types/>
+            <days/>
+        </day-types>
+    </calendars>
+    <tasks empty-milestones="true">
+        <taskproperties>
+            <taskproperty id="tpd0" name="type" type="default" valuetype="icon"/>
+            <taskproperty id="tpd1" name="priority" type="default" valuetype="icon"/>
+            <taskproperty id="tpd2" name="info" type="default" valuetype="icon"/>
+            <taskproperty id="tpd3" name="name" type="default" valuetype="text"/>
+            <taskproperty id="tpd4" name="begindate" type="default" valuetype="date"/>
+            <taskproperty id="tpd5" name="enddate" type="default" valuetype="date"/>
+            <taskproperty id="tpd6" name="duration" type="default" valuetype="int"/>
+            <taskproperty id="tpd7" name="completion" type="default" valuetype="int"/>
+            <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
+            <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
+        </taskproperties>
+        <task id="34" uid="0793b6aafd8642b7854a668a9966d4ec" name="entrega de requerimientos a los grupos" meeting="false" start="2025-06-11" duration="1" complete="0" expand="true">
+            <depend id="1" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="1" uid="fe39c772392b418f8951f912ae8482ab" name="relevamiento y planificación" meeting="false" start="2025-06-12" duration="1" complete="0" expand="true">
+            <depend id="2" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="2" uid="e20de0589ade4f13bd9b426a4b59ddec" name="Relevamiento y factibilidad" meeting="false" start="2025-06-13" duration="5" complete="0" expand="true">
+            <depend id="3" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="3" uid="89d31ffbf58342d3add8488964aca173" name="Formularios de relevamiento" meeting="false" start="2025-06-18" duration="3" complete="0" expand="true">
+            <depend id="4" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="4" uid="fc8abdbfa6f54269a5828efb5da723f6" name="Especificación de requerimientos" meeting="false" start="2025-06-21" duration="5" complete="0" expand="true">
+            <depend id="5" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="5" uid="bbf34d595e95491db0b7ac80bd6f8089" name="Árboles y tablas de decisión" meeting="false" start="2025-06-26" duration="3" complete="0" expand="true">
+            <depend id="6" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="6" uid="55418358b71e45cd9511eb6deac859ef" name="Prototipado" meeting="false" start="2025-06-29" duration="5" complete="0" expand="true">
+            <depend id="7" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="7" uid="1dd648b0b2b9436e8e42e22c46244a6d" name="Planificación inicial y reglas de grupo" meeting="false" start="2025-07-04" duration="3" complete="0" expand="true">
+            <depend id="8" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="8" uid="d0838c876bc14b38ad5699dbccea7f83" name="Diagrama Gantt" meeting="false" start="2025-07-07" duration="3" complete="0" expand="true">
+            <depend id="9" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="9" uid="82e458470aa64e4e9237bec147ec0869" name="Configuración del repositorio Git" meeting="false" start="2025-07-10" duration="2" complete="0" expand="true">
+            <depend id="10" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="10" uid="763fa512bd804f85b191ef9b602f0877" name="Documentación entrega 1" meeting="false" start="2025-07-12" duration="1" complete="0" expand="true"/>
+        <task id="11" uid="58f5742aeab34c0da5326fa7afd0ce05" name="ENTREGA 1 COMPLETA" meeting="false" start="2025-07-14" duration="1" complete="0" expand="true">
+            <depend id="12" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="12" uid="8398169e24c6447494d34fad819ed00f" name="Modelo entidad-relación (DER)" meeting="false" start="2025-07-15" duration="5" complete="0" expand="true"/>
+        <task id="13" uid="e5bf57fff1d245ab8cab4db86454deaf" name="Esquema relacional (3FN)" meeting="false" start="2025-07-29" duration="5" complete="0" expand="true"/>
+        <task id="14" uid="72415448972941c6899b09ab013ae4f5" name="Restricciones no estructurales" meeting="false" start="2025-08-05" duration="3" complete="0" expand="true"/>
+        <task id="15" uid="7e5882ef1d2a4020ad3a60741ad62f41" name="Implementación física base de datos (DDL)" meeting="false" start="2025-08-08" duration="5" complete="0" expand="true"/>
+        <task id="16" uid="f18eb585b8624369bbd6cd9d76878e23" name="Carga de datos de prueba" meeting="false" start="2025-08-15" duration="2" complete="0" expand="true"/>
+        <task id="17" uid="1036ae56bc37435489967640bffc9d11" name="Diseño responsivo" meeting="false" start="2025-08-19" duration="5" complete="0" expand="true"/>
+        <task id="18" uid="2c7d4af8f5be492ea0d525a7739c3380" name="Desarrollo versión básica individual" meeting="false" start="2025-08-26" duration="10" complete="0" expand="true"/>
+        <task id="19" uid="0b3be4a4b1bb43e9bfac20c022a22624" name="Estructura en 3 capas (frontend/backend/db)" meeting="false" start="2025-09-09" duration="5" complete="0" expand="true"/>
+        <task id="20" uid="a7d601656a094ae7bc117af62ac6a5f8" name="Video demostrativo y documentación" meeting="false" start="2025-09-16" duration="3" complete="0" expand="true"/>
+        <task id="21" uid="dfd73bf2e74f4968b65501a9d2c17e1d" name="ENTREGA 2 COMPLETA" meeting="false" start="2025-09-19" duration="1" complete="0" expand="true"/>
+        <task id="22" uid="f558dddb036f47608764c377ccb41039" name="Consolidación del modelo y script final" meeting="false" start="2025-09-23" duration="4" complete="0" expand="true"/>
+        <task id="23" uid="c4b6b98d591b49dc909a59b3ea11579f" name="Implementación física completa (roles, vistas)" meeting="false" start="2025-09-27" duration="5" complete="0" expand="true"/>
+        <task id="24" uid="afe61cced544417f81140f9e52080b3e" name="Diseño responsivo multiplataforma" meeting="false" start="2025-10-04" duration="4" complete="0" expand="true"/>
+        <task id="25" uid="a7438a347ab340298cae277ebed97273" name="Desarrollo versión multijugador" meeting="false" start="2025-10-08" duration="15" complete="0" expand="true"/>
+        <task id="26" uid="33db9903e5dd49cab81c419c6cca77cf" name="Validaciones y reglas" meeting="false" start="2025-10-29" duration="3" complete="0" expand="true"/>
+        <task id="27" uid="3bb99d7f226d4bbeacfad42bf31c48ce" name="Registro histórico, rankings, perfiles" meeting="false" start="2025-11-01" duration="4" complete="0" expand="true"/>
+        <task id="28" uid="f3e98855a4cf40ccb7fbb90cae4fde67" name="Manual usuario e instalación" meeting="false" start="2025-11-06" duration="3" complete="0" expand="true"/>
+        <task id="29" uid="47a771ce04a4474f8cf65c1e2f0238c1" name="Documentación final del proyecto" meeting="false" start="2025-11-10" duration="1" complete="0" expand="true"/>
+        <task id="30" uid="c19383d79814435ebeb9e00b6a0325c4" name="Video final (español e inglés)" meeting="false" start="2025-11-10" duration="1" complete="0" expand="true"/>
+        <task id="31" uid="8c92febb5f8a40ef98b06e1b0cd9ddc7" name="Entrega en USB y carpeta física" meeting="false" start="2025-11-10" duration="1" complete="0" expand="true"/>
+        <task id="32" uid="acb2f2c90ead4b90a3f4e39232e95817" name="DEFENSA DEL PROYECTO" meeting="false" start="2025-11-11" duration="1" complete="0" expand="true"/>
+    </tasks>
+    <resources/>
+    <allocations/>
+    <vacations/>
+    <previous/>
+    <roles roleset-name="Default"/>
+</project>
