@@ -4,3 +4,5 @@ Proyecto de Draftosaurus por el equipo de DinoKing Games. Trabajo del proyecto f
 La documentación de Draftosaurus para sus respectivas materias se encuentra dentro de la carpeta "Documentación/(Nombre de materia)".
 
 Este proyecto se realizo con HTML, CSS y JavaScript. Eventualmente se trabajara con PHP, MySQL y Apache.
+
+Puedes ver y utilizar el estado actual del proyecto en: https://dinoking.netlify.app/
