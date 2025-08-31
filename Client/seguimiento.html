@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="main.js"></script>
+    <title>Document</title>
+    <link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <header class="site-header">
+        <div class="container">
+            <div class="barra">
+                <a href="/" class="logo-contenedor">
+                    <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
+                    <h1 class="m0">Dino<span>King Games</span></h1>
+                </a>
+                <div class="navegacion">
+                    <a href="jugar.html">Jugar</a>
+                    <a href="seguimiento.html">Seguimiento</a>
+                    <a href="nosotros.html">Nosotros</a>
+                    <a href="contacto.html">Contacto</a>
+                </div>
+            </div>
+            <div class="texto-header">
+                <h2 class="m0">¡Descubre nuestros juegos!</h2>
+                <p class="m0">Diviertete con amigos mientras disfrutas un desafio.</p>
+            </div>
+        </div>
+    </header>
+
+    <h2 class="center">Tablero Dinosaurios</h2>
+
+    <div class="tablero">
+        <!-- FILA 1 -->
+        <div class="celda bosque"><button id="btn1" onclick="selectUno()" class="btn-tamaño bosque-color btn-opcion"></button></div>
+        <div class="celda rio"><button id="btn2" onclick="selectDos()" class="btn-tamaño rio-color btn-opcion"></button></div>
+        <div class="celda bosque"><button id="btn3" onclick="selectTres()" class="btn-tamaño bosque-color btn-opcion"></button></div>
+
+        <!-- FILA 2 -->
+        <div class="celda bosque"><button id="btn4" onclick="selectCuatro()" class="btn-tamaño bosque-color btn-opcion"></button></div>
+        <div class="celda roca"><button id="btn5" onclick="selectCinco()" class="btn-tamaño roca-color btn-opcion"></button></div>
+
+        <!-- FILA 3 -->
+        <div class="celda roca"><button id="btn6" onclick="selectSeis()" class="btn-tamaño roca-color btn-opcion"></button></div>
+        <div class="celda roca"><button id="btn7" onclick="selectSiete()" class="btn-tamaño roca-color btn-opcion"></button></div>
+
+        <!-- FILA 4 - DEPÓSITO -->
+        <div class="celda deposito">
+        <div class="dinosaurios-iconos">
+            <button onclick="slctRojo()" class="no-border"><img src="imgs/minis/rojo.png" alt="Rojo" class="icono" id="ico-rojo"></button>
+            <button onclick="slctCyan()" class="no-border"><img src="imgs/minis/cyan.png" alt="Cyan" class="icono" id="ico-cyan"></button>
+            <button onclick="slctNaranja()" class="no-border"><img src="imgs/minis/naranja.png" alt="Naranja" class="icono" id="ico-naranja"></button>
+            <button onclick="slctRosa()" class="no-border"><img src="imgs/minis/rosa.png" alt="Rosa" class="icono" id="ico-rosa"></button>
+            <button onclick="slctVerde()" class="no-border"><img src="imgs/minis/verde.png" alt="Verde" class="icono" id="ico-verde"></button>
+            <button onclick="slctAzul()" class="no-border"><img src="imgs/minis/azul.png" alt="Azul" class="icono" id="ico-azul"></button>
+        </div>
+        </div>
+    </div>
+
+    <div id="mensaje" class="mensaje"></div>
+
+    <footer class="site-footer">
+        <div class="barra container">
+            <a href="/" class="logo-contenedor">
+                <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
+                <p class="m0">Dino<span>King Games</span></p>
+            </a>
+            <div class="navegacion">
+                <a href="jugar.html">Jugar</a>
+                <a href="seguimiento.html">Seguimiento</a>
+                <a href="nosotros.html">Nosotros</a>
+                <a href="contacto.html">Contacto</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
