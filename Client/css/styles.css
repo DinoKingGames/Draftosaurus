@@ -1,0 +1,475 @@
+html {
+    box-sizing: border-box;
+    font-size: 62.5%;
+}
+
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.6rem;
+    line-height: 2;
+    margin: 0 auto;
+}
+
+
+/** Globales **/
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 95%;
+}
+
+img {
+    max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-family: 'PT Sans', sans-serif;
+}
+
+h1 {
+    font-size: 4.8rem;
+}
+
+h2 {
+    font-size: 4.0rem;
+    line-height: 1.2;
+}
+
+h3 {
+    font-size: 3.2rem;
+}
+
+h4 {
+    font-size: 2.8rem;
+}
+
+a {
+    text-decoration: none;
+}
+
+span {
+    font-weight: 700;
+}
+
+
+/** Utilidades **/
+
+.text-center {
+    text-align: center;
+}
+
+.m0 {
+    margin: 0;
+}
+
+.btn {
+    display: block;
+    margin: 2rem 0;
+    color: #ffffff;
+    padding: 2rem 3rem;
+    text-align: center;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 2rem;
+    flex: 0 0 100%;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+@media (min-width: 768px) {
+    .btn {
+        display: inline-block;
+    }
+}
+
+.btn-primary {
+    background-color: #000000;
+}
+
+.btn-secondary {
+    background-color: #783d3c;
+}
+
+@media (min-width: 768px) {
+    .grid {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .columnas-4 {
+        flex: 0 0 calc(33.3% - 2rem);
+    }
+    .columnas-6 {
+        flex: 0 0 calc(50% - 2rem)
+    }
+    .columnas-8 {
+        flex: 0 0 calc(66.6% - 2rem);
+    }
+    .columnas-10 {
+        flex: 0 0 calc(83.3% - 2rem);
+    }
+    .columnas-12 {
+        flex: 0 0 100%;
+    }
+}
+
+.centrar-contacto {
+    justify-content: center;
+}
+
+
+/** Header **/
+
+.site-header {
+    background-image: url(../imgs/banner.png);
+    background-position: center center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 60rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .barra {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.site-header a {
+    color: #ffffff;
+}
+
+.site-header h1 {
+    text-align: center;
+    font-weight: 400;
+}
+
+
+/** Navegacion **/
+
+.navegacion a {
+    display: block;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+@media (min-width: 768px) {
+    .navegacion a {
+        display: inline;
+        margin-right: 2rem;
+    }
+    .navegacion a:last-of-type {
+        margin: 0;
+    }
+}
+
+
+/** Texto Header **/
+
+.texto-header {
+    color: #ffffff;
+    margin-top: 5rem;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .texto-header {
+        margin-top: 15rem;
+    }
+}
+
+.texto-header p {
+    font-size: 2.2rem;
+}
+
+.logo-contenedor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo-contenedor img {
+    height: 60px;
+    width: auto;
+}
+
+
+
+/** Contenido Blog **/
+
+.contenido-principal {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: center;
+}
+
+.blog,
+.cursos {
+    flex: 0 0 100%;
+}
+
+.cursos {
+    order: -1;
+}
+
+@media (min-width: 768px) {
+    .contenido-principal {
+        justify-content: space-between;
+    }
+    .blog {
+        flex-basis: 66.6%;
+    }
+    .cursos {
+        flex-basis: calc(33.3% - 4rem);
+        order: 2;
+    }
+}
+
+.entrada-blog {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e1e1e1;
+    padding: 2rem 0;
+}
+
+.entrada-blog:last-of-type {
+    border-bottom: none;
+}
+
+
+/** Estilos Aside **/
+
+.cursos-lista {
+    list-style: none;
+    padding: 0;
+}
+
+.curso {
+    font-family: 'PT Sans', sans-serif;
+    border-bottom: 1px solid #e1e1e1;
+    margin-bottom: 4rem;
+}
+
+.curso:last-of-type {
+    border-bottom: none;
+}
+
+.curso span {
+    font-weight: 700;
+}
+
+.curso p {
+    font-size: 2rem;
+}
+
+
+/** Footer **/
+
+.site-footer {
+    background-color: #000000;
+    padding: 3rem;
+    margin-top: 4rem;
+}
+
+.site-footer p {
+    color: #ffffff;
+    text-align: center;
+    font-size: 4rem;
+    font-family: 'PT Sans', sans-serif;
+    font-weight: 400;
+}
+
+.site-footer a {
+    color: #ffffff;
+}
+
+
+/** Contacto **/
+
+.formulario-contacto {
+    padding: 5rem;
+    background-color: #ffffff;
+}
+
+@media (min-width: 768px) {
+    .formulario-contacto {
+        margin-top: -10rem;
+    }
+}
+
+.formulario-contacto .campo {
+    display: flex;
+    margin-bottom: 2rem;
+    justify-content: space-between;
+}
+
+.formulario-contacto .campo label {
+    flex: 0 0 8rem;
+}
+
+.formulario-contacto .campo input:not([type="submit"]),
+textarea {
+    flex: 1;
+    border: 1px solid #e1e1e1;
+}
+
+.formulario-contacto .campo textarea {
+    height: 20rem;
+}
+
+.formulario-contacto .enviar {
+    justify-content: flex-end;
+}
+
+.imagen-contacto {
+    object-fit: cover;
+    object-position: center;
+    max-height: 300px;
+    width: 100%;
+    margin: 2rem auto;
+    display: block;
+    text-align: center;
+}
+
+/* App Seguimiento */
+
+.center{
+    text-align: center;
+}
+.tablero {
+    display: grid;
+    grid-template-columns: 120px 120px 120px ; 
+    grid-template-rows: repeat(3, 120px) 80px; 
+    gap: 5px;
+    justify-content: center;
+    border: 1px solid #000;
+    margin: 0 auto;
+    border-width: 0;
+}
+
+.celda {
+    border: 2px solid #000;
+    font-size: 12px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.rio {
+    grid-column: 2;
+    grid-row: 1 / 4;
+}
+
+.deposito {
+    grid-column: 1 / 4;
+    grid-row: 4;
+    background-color: #f4f4f4;
+}
+
+.numero {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+h2 {
+    margin-bottom: 15px;
+}
+
+.btn-tamaño{
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.rio-color{
+    background-color: #cce5ff
+}
+
+.bosque-color{
+    background-color: #d4f8d4;
+}
+
+.roca-color{
+    background-color: #e8d0b3; 
+}
+
+.tablero button:hover{
+    opacity: 0.7;
+}
+
+.icono{
+    height: 30px;
+    width: 30px;
+}
+
+.dinosaurios-iconos{
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    align-items: center;
+}
+
+.no-border{
+    border: none;
+}
+
+.cambio{
+    width: 50px;
+    height: 50px;  
+    transition: height 0.5s ease, width 0.5s ease;  
+}
+
+img{
+    padding: 0;
+    margin: 0 auto;
+}
+
+.btn-opcion .mini-dino {
+  width: 24px;          
+  height: 24px;         
+  margin: 2px;          
+  object-fit: contain;  
+}
+
+.mensaje{
+    text-align: center;
+    font-family: "Bebas Neue", sans-serif;
+    padding: 20px;
+    margin-top: 10px;
+    font-size: 40px;
+    font-weight: 700;
+    color: aquamarine;
+}
+
+.contenedor-tablero {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.imagen-tablero {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
