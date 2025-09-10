@@ -548,8 +548,7 @@ img{
 }
 
 .dinosaurios {
-    display: flex;
-    flex-wrap: wrap;
+    display: block;
     justify-content: center;
     gap: 10px;
     
