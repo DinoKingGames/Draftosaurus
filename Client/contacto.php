@@ -12,32 +12,11 @@
 
 <body>
 
-    <header class="site-header">
-        <div class="container">
-            <div class="barra">
-                <a href="/" class="logo-contenedor">
-                    <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
-                    <h1 class="m0">Dino<span>King Games</span></h1>
-                </a>
-                <div class="navegacion">
-                    <a href="jugar.html">Jugar</a>
-                    <a href="seguimiento.html">Seguimiento</a>
-                    <a href="nosotros.html">Nosotros</a>
-                    <a href="contacto.html">Contacto</a>
-                </div>
-            </div>
-            <div class="texto-header">
-                <h2 class="m0">¡Descubre nuestros juegos!</h2>
-                <p class="m0">Diviertete con amigos mientras disfrutas un desafio.</p>
-            </div>
-        </div>
-    </header>
-
     <main class="container">
         <h2 class="m0 text-center">Contacto</h2>
         <div class="grid centrar-contacto">
             <div class="columnas-12">
-                <img src="imgs/dino_telefono.png" alt="Imagen Contacto" class="imagen-contacto">
+                <img src="Client/imgs/dino_telefono.png" alt="Imagen Contacto" class="imagen-contacto">
             </div>
             <div class="formulario-contacto columnas-10">
                 <form action="#">
@@ -64,20 +43,7 @@
         </div>
     </main>
 
-    <footer class="site-footer">
-        <div class="barra container">
-            <a href="/" class="logo-contenedor">
-                <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
-                <p class="m0">Dino<span>King Games</span></p>
-            </a>
-            <div class="navegacion">
-                <a href="jugar.html">Jugar</a>
-                <a href="seguimiento.html">Seguimiento</a>
-                <a href="nosotros.html">Nosotros</a>
-                <a href="contacto.html">Contacto</a>
-            </div>
-        </div>
-    </footer>
-</body>
 
+
+</body>
 </html>

@@ -12,34 +12,11 @@
 
 <body>
 
-    <header class="site-header">
-        <div class="container">
-            <div class="barra">
-                <a href="/" class="logo-contenedor">
-                    <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
-                    <h1 class="m0">Dino<span>King Games</span></h1>
-                </a>
-                <div class="navegacion">
-                    <a href="jugar.html">Jugar</a>
-                    <a href="seguimiento.html">Seguimiento</a>
-                    <a href="nosotros.html">Nosotros</a>
-                    <a href="contacto.html">Contacto</a>
-                </div>
-            </div>
-            <div class="texto-header">
-                <h2 class="m0">¡Descubre nuestros juegos!</h2>
-                <p class="m0">Diviertete con amigos mientras disfrutas un desafio.</p>
-            </div>
-        </div>
-    </header>
-
-
-
     <main class="container">
         <h2 class="text-center">Nuestros proximos juegos</h2>
         <article class="entrada-blog grid">
             <div class="columnas-4">
-                <img src="imgs/rwr_write.png" alt="">
+                <img src="Client/imgs/rwr_write.png" alt="">
             </div>
             <div class="columnas-8">
                 <h3 class="m0">Dinosaur Island: Rawr ‘n Write</h3>
@@ -53,7 +30,7 @@
 
         <article class="entrada-blog grid">
             <div class="columnas-4">
-                <img src="imgs/dino_world.png" alt="">
+                <img src="Client/imgs/dino_world.png" alt="">
             </div>
             <div class="columnas-8 ">
                 <h3 class="m0">Dinosaur World</h3>
@@ -70,20 +47,6 @@
 
 
 
-    <footer class="site-footer">
-        <div class="barra container">
-            <a href="/" class="logo-contenedor">
-                <img src="imgs/logo_final.png" alt="Logo DinoKing Games">
-                <p class="m0">Dino<span>King Games</span></p>
-            </a>
-            <div class="navegacion">
-                <a href="jugar.html">Jugar</a>
-                <a href="seguimiento.html">Seguimiento</a>
-                <a href="nosotros.html">Nosotros</a>
-                <a href="contacto.html">Contacto</a>
-            </div>
-        </div>
-    </footer>
 </body>
 
 </html>
