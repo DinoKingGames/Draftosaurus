@@ -349,26 +349,21 @@ textarea {
 .center{
     text-align: center;
 }
-.tablero {
+.tablero-seguimiento {
     display: grid;
-    grid-template-columns: 120px 120px 120px ; 
-    grid-template-rows: repeat(3, 120px) 80px; 
-    gap: 5px;
+    grid-template-columns: repeat(3, 120px); /* 3 columnas */
+    grid-auto-rows: 120px;
+    gap: 10px;
     justify-content: center;
-    border: 1px solid #000;
-    margin: 0 auto;
-    border-width: 0;
+    margin: 30px auto;
+    max-width: 400px;
 }
 
 .celda {
-    border: 2px solid #000;
-    font-size: 12px;
-    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
-    background-color: #fff;
+    border-radius: 8px;
 }
 
 .rio {
@@ -377,9 +372,14 @@ textarea {
 }
 
 .deposito {
-    grid-column: 1 / 4;
-    grid-row: 4;
-    background-color: #f4f4f4;
+    grid-column: span 3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    border: 2px dotted #555;
+    border-radius: 8px;
+    background-color: #f7f7f7;
 }
 
 .numero {
@@ -391,11 +391,15 @@ h2 {
     margin-bottom: 15px;
 }
 
-.btn-tamaño{
-    height: 100%;
+.btn-tamaño {
     width: 100%;
-    margin: 0 auto;
-    padding: 0;
+    height: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+}
+.btn-opcion:hover {
+    opacity: 0.85;
 }
 
 .rio-color{
@@ -414,22 +418,28 @@ h2 {
     opacity: 0.7;
 }
 
-.icono{
-    height: 30px;
-    width: 30px;
+.icono {
+    width: 40px;
+    height: 40px;
+    transition: transform 0.2s;
 }
 
-.dinosaurios-iconos{
+
+.icono:hover {
+    transform: scale(1.2);
+}
+
+.dinosaurios-iconos {
     display: flex;
-    justify-content: space-around;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.no-border{
+.no-border {
+    background: none;
     border: none;
+    cursor: pointer;
 }
 
 .cambio{
@@ -468,8 +478,99 @@ img{
 }
 
 .imagen-tablero {
+    z-index: 1;
+    position: absolute;
     width: auto;
     max-width: 100%;
     height: auto;
     display: block;
+    pointer-events: none;
+}
+
+.contenedor-juego {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 30px;
+    width: 100%;
+    margin-top: 20px;
+    box-sizing: border-box;
+}
+
+.tablero {             
+    flex: 1;   
+    height: 100%;
+    aspect-ratio: 3 / 2;     
+    position: relative;
+    overflow: hidden;
+    background-image: url("../imgs/juego.jpg");
+    background-size: contain;    
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid #333;
+    border-radius: 8px;
+
+}
+
+.imagen-tablero {
+    z-index: 1;
+    position: absolute;
+}
+
+.bandeja {
+    flex: 0 0 200px;
+    border: 2px solid #000;
+    padding: 10px;
+    background-color: #fafafa; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 200px;
+    border-radius: 8px;
+}
+
+.bandeja button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.bandeja img {
+    width: 80px;
+    height: auto;
+    display: block;
+    transition: transform 0.2s;
+}
+
+.bandeja img:hover {
+    transform: scale(1.1);
+}
+
+.dinosaurios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    
+}
+
+.dino {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    cursor: grab;
+    z-index: 100; 
+}
+
+.mini-dino {
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+    object-fit: contain;
+    transition: transform 0.2s;
+}
+
+.mini-dino:hover {
+    transform: scale(1.2);
 }

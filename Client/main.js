@@ -212,3 +212,62 @@ function actualizarMostrar(seccion, color) {
   img.classList.add('mini-dino');
   btn.appendChild(img);
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const tablero = document.getElementById('tablero');
+  if (!tablero) throw new Error('No se encontró #tablero en el DOM');
+
+  let nextDragId = 1;
+  function makeDraggable(img) {
+    img.setAttribute('draggable', 'true');
+    
+    if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (nextDragId++);
+    img.addEventListener('dragstart', (e) => {
+      const payload = JSON.stringify({
+        src: e.currentTarget.src,
+        id: e.currentTarget.dataset.dragId
+      });
+      e.dataTransfer.setData('text/plain', payload);
+      e.dataTransfer.effectAllowed = 'copyMove';
+    });
+  }
+
+
+  document.querySelectorAll('.mini-dino').forEach(makeDraggable);
+
+  tablero.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+  });
+
+    tablero.addEventListener('drop', (e) => {
+    e.preventDefault();
+
+    const raw = e.dataTransfer.getData('text/plain');
+    if (!raw) return; 
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      data = { src: raw, id: null };
+    }
+
+    const rect = tablero.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const clon = document.createElement('img');
+    clon.src = data.src;
+    clon.classList.add('dino');
+    clon.style.position = 'absolute';
+    clon.style.width = '60px';
+    clon.style.height = '60px';
+    clon.style.left = `${x - 30}px`;
+    clon.style.top = `${y - 30}px`;
+
+    clon.setAttribute('draggable', 'false');
+
+    tablero.appendChild(clon);
+});
+});
