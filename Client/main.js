@@ -213,61 +213,109 @@ function actualizarMostrar(seccion, color) {
   btn.appendChild(img);
 }
 
+/* Juego */
+
 document.addEventListener('DOMContentLoaded', () => {
   const tablero = document.getElementById('tablero');
   if (!tablero) throw new Error('No se encontró #tablero en el DOM');
-
   let nextDragId = 1;
   function makeDraggable(img) {
     img.setAttribute('draggable', 'true');
-    
     if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (nextDragId++);
     img.addEventListener('dragstart', (e) => {
       const payload = JSON.stringify({
         src: e.currentTarget.src,
-        id: e.currentTarget.dataset.dragId
+        id: e.currentTarget.dataset.dragId,
+        tipo: e.currentTarget.dataset?.tipo || null,
       });
       e.dataTransfer.setData('text/plain', payload);
       e.dataTransfer.effectAllowed = 'copyMove';
     });
   }
-
-
   document.querySelectorAll('.mini-dino').forEach(makeDraggable);
 
-  tablero.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
-  });
+  const ZONAS = [
+    { id: 1, nombre: 'Bosque Semejanza', x: 0,  y: 2,  w: 38, h: 32, slots: 6, cols: 6 },
+    { id: 3, nombre: 'Trío Frondoso',    x: 10, y: 37, w: 23, h: 18, slots: 3, cols: 3 },
+    { id: 6, nombre: 'Pradera del Amor', x: 4,  y: 72, w: 18, h: 22, slots: 6, cols: 6 }, 
+    { id: 4, nombre: 'Rey de la Selva',  x: 69, y: 9,  w: 15, h: 18, slots: 1, cols: 1 },
+    { id: 5, nombre: 'Prado Diferencia', x: 69, y: 46, w: 25, h: 25, slots: 6, cols: 6 },
+    { id: 7, nombre: 'Isla Solitaria',   x: 68, y: 78, w: 20, h: 22, slots: 1, cols: 1 },
+    { id: 2, nombre: 'Río',              x: 50, y: 0,  w: 8,  h: 100, slots: 8, cols: 1 }, 
+  ];
 
-    tablero.addEventListener('drop', (e) => {
-    e.preventDefault();
+  function renderZonas() {
+    ZONAS.forEach(z => {
+      const el = document.createElement('div');
+      el.className = 'dropzone';
+      el.style.left = `${z.x}%`;
+      el.style.top  = `${z.y}%`;
+      el.style.width  = `${z.w}%`;
+      el.style.height = `${z.h}%`;
+      el.dataset.zoneId = z.id;
 
-    const raw = e.dataTransfer.getData('text/plain');
-    if (!raw) return; 
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = z.nombre ?? ('Zona ' + z.id);
+      el.appendChild(label);
+      const slotsWrap = document.createElement('div');
+      slotsWrap.className = 'slots';
+      const cols = Math.max(1, (z.cols ?? z.slots ?? 1));
+      const count = Math.max(1, (z.slots ?? cols));
+      slotsWrap.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
 
-    let data;
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = { src: raw, id: null };
-    }
+      for (let i = 1; i <= count; i++) {
+        const s = document.createElement('div');
+        s.className = 'slot';
+        s.dataset.slotIndex = String(i);
+        slotsWrap.appendChild(s);
+      }
+      el.appendChild(slotsWrap);
 
-    const rect = tablero.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+      el.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        el.classList.add('is-over');
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('is-over'));
 
-    const clon = document.createElement('img');
-    clon.src = data.src;
-    clon.classList.add('dino');
-    clon.style.position = 'absolute';
-    clon.style.width = '60px';
-    clon.style.height = '60px';
-    clon.style.left = `${x - 30}px`;
-    clon.style.top = `${y - 30}px`;
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.classList.remove('is-over');
 
-    clon.setAttribute('draggable', 'false');
+        const raw = e.dataTransfer.getData('text/plain');
+        if (!raw) return;
 
-    tablero.appendChild(clon);
-});
+        let data;
+        try { data = JSON.parse(raw); } catch { data = { src: raw, id: null }; }
+
+        const zoneId = el.dataset.zoneId;
+        let freeSlot;
+
+        if (zoneId === '2') {
+          freeSlot = Array.from(el.querySelectorAll('.slot')).reverse()
+            .find(s => !s.classList.contains('filled'));
+        } else {
+          freeSlot = el.querySelector('.slot:not(.filled)');
+        }
+
+        if (!freeSlot) {
+          return;
+        }
+
+        const img = document.createElement('img');
+        img.src = data.src;
+        img.alt = data.tipo || 'dino';
+        img.className = 'dino';
+        img.draggable = false;
+
+        freeSlot.classList.add('filled');
+        freeSlot.appendChild(img);
+      });
+
+      tablero.appendChild(el);
+    });
+  }
+
+  renderZonas();
 });
