@@ -319,3 +319,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderZonas();
 });
+
+/* Iniciar Partida */
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btn-iniciar');
+  const pantalla = document.getElementById('pantalla-inicio');
+  const juego = document.querySelector('.contenedor-juego');
+  const err = document.getElementById('init-error');
+
+  btn.addEventListener('click', async () => {
+    err.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Iniciando...';
+
+    try {
+      // Construye URL relativa a ESTA página: ?action=init
+      const url = new URL(window.location.href);
+      url.search = ''; // limpiamos otros parámetros si los hubiera
+      url.searchParams.set('action', 'init');
+
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        cache: 'no-store',
+      });
+
+      let json;
+      try {
+        json = await res.json();
+      } catch (parseErr) {
+        const txt = await res.text();
+        console.error('Respuesta no-JSON:', txt);
+        throw new Error('Respuesta no-JSON al iniciar');
+      }
+
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.message || 'Error al iniciar');
+      }
+
+      // OK: mostrar tablero
+      pantalla.classList.add('hidden');
+      juego.classList.remove('hidden');
+
+      // window.__PARTIDA__ = json.data?.game ?? null;
+
+    } catch (e) {
+      console.error(e);
+      err.classList.remove('hidden');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Jugar';
+    }
+  });
+});
