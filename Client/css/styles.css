@@ -573,3 +573,126 @@ img{
 .mini-dino:hover {
     transform: scale(1.2);
 }
+
+.tablero {
+  position: relative;
+  width: 100%;
+  max-width: 1100px;
+  aspect-ratio: 1086 / 768;
+}
+
+/* Colocación Drag and Drop */
+.dropzone {
+  position: absolute;
+  border-radius: 14px;
+  outline: 2px dashed rgba(120, 65, 200, 0.45);
+  background: rgba(120, 65, 200, 0.10);
+  box-shadow:
+    inset 0 0 0 3px rgba(255, 255, 255, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.08);
+  z-index: 2;
+  transition: transform .15s ease, box-shadow .15s ease, outline-color .15s ease, background-color .15s ease;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.dropzone.is-over {
+  transform: scale(1.02);
+  outline-color: rgba(76,175,80,.7);
+  background: rgba(76,175,80,.16);
+  box-shadow: 0 0 0 3px rgba(76,175,80,.25);
+}
+
+.dropzone .label {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  font: 600 12px/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #3f2d6b;
+  background: rgba(255,255,255,.65);
+  padding: 2px 6px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.dropzone .slots {
+  position: absolute;
+  inset: 8% 6% 8% 6%; 
+  display: grid;
+  gap: 4%;              
+  align-content: center; 
+  justify-content: center;
+}
+
+.dropzone .slot {
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  outline: 1px dashed rgba(120,65,200,0.15);
+}
+
+.dropzone .slot > .dino {
+  height: auto;
+  max-width: 100%;
+}
+
+.dropzone[data-zone-id="1"] .slot > .dino { 
+    width: 20%;
+}
+.dropzone[data-zone-id="4"] .slot > .dino { 
+    width: 80%; 
+}
+.dropzone[data-zone-id="3"] .slot > .dino { 
+    width: 30%; 
+}
+.dropzone[data-zone-id="5"] .slot > .dino { 
+    width: 20%; 
+}
+.dropzone[data-zone-id="6"] .slot > .dino { 
+    width: 20%; 
+}
+.dropzone[data-zone-id="7"] .slot > .dino { 
+    width: 80%; 
+}
+.dropzone[data-zone-id="2"] .slot > .dino { 
+    width: 80%; 
+
+}
+
+.dropzone[data-zone-id="2"] .slots {
+  grid-template-columns: 1fr;    
+  grid-auto-rows: 1fr;          
+  align-content: stretch;        
+  justify-content: center;
+  gap: 6%;
+  inset: 4% 16% 6% 16%;          
+}
+
+
+.dropzone .slot.hover {
+  outline-color: rgba(76,175,80,.35);
+}
+
+/* Partida */
+.hidden { display: none !important; }
+
+.pantalla-inicio {
+  min-height: 65vh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1rem;
+}
+.inicio-card {
+  max-width: 520px;
+  width: 92%;
+  border-radius: 12px;
+  padding: 2.4rem;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.06);
+  text-align: center;
+}
+.init-error {
+  color: #b00020;
+  margin-top: 1rem;
+}

@@ -1,3 +1,10 @@
+<?php
+if (isset($_GET['action'])) {
+    require_once __DIR__ . '/../Controllers/JuegoControlador.php';
+    JuegoControlador::initEndpoint(); 
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,12 +22,20 @@
 
 <?php
     require __DIR__ . '/../Controllers/DinosaurioController.php';
-
     $controller = new DinosaurioController();
     $bandeja = $controller->asignacion();
 ?>
 
-<div class="contenedor-juego">
+<section id="pantalla-inicio" class="pantalla-inicio">
+  <div class="inicio-card">
+    <h2 class="m0 text-center">Draftosaurus</h2>
+    <p class="text-center">Presiona para iniciar la partida</p>
+    <button id="btn-iniciar" class="btn btn-primary">Jugar</button>
+    <p id="init-error" class="init-error hidden">No se pudo iniciar la partida. Intenta nuevamente.</p>
+  </div>
+</section>
+
+<div class="contenedor-juego hidden">
     <div class="tablero" id="tablero">
         <img src="Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
     </div>
@@ -37,14 +52,13 @@
                                     data-tipo="' . $dino->tipo . '" 
                                     class="mini-dino"
                                     draggable="true">';
-                    $vistos[] = $dino->tipo;
+                        $vistos[] = $dino->tipo;
                     }
                 }
             ?>
         </div>
     </div>
 </div>
-
 
 </body>
 </html>
