@@ -2,14 +2,13 @@
 require_once __DIR__ . '/../Repositories/DinoModels.php';
 
 class DinosaurioController {
-
-    private $tipos = [
-        "Azul"    => "Client/imgs/minis/Azul.png",
-        "Cyan"    => 'Client/imgs/minis/Cyan.png',
-        "Naranja" => 'Client/imgs/minis/Naranja.png',
-        "Rojo"    => "Client/imgs/minis/Rojo.png",
-        "Rosado"  => "Client/imgs/minis/Rosa.png",
-        "Verde"   => "Client/imgs/minis/Verde.png"
+        private $tipos = [
+        "Azul"    => "/Client/imgs/minis/Azul.png",
+        "Cyan"    => "/Client/imgs/minis/Cyan.png",
+        "Naranja" => "/Client/imgs/minis/Naranja.png",
+        "Rojo"    => "/Client/imgs/minis/Rojo.png",
+        "Rosado"  => "/Client/imgs/minis/Rosa.png",
+        "Verde"   => "/Client/imgs/minis/Verde.png"
     ];
 
     public function asignacion() {

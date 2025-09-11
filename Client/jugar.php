@@ -1,7 +1,7 @@
 <?php
-if (isset($_GET['action'])) {
+if (isset($_GET['action']) && $_GET['action'] === 'init') {
     require_once __DIR__ . '/../Controllers/JuegoControlador.php';
-    JuegoControlador::initEndpoint(); 
+    JuegoControlador::initEndpoint();
     exit;
 }
 ?>
@@ -11,11 +11,11 @@ if (isset($_GET['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego</title>
-    <link rel="icon" href="imgs/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="/Client/imgs/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <script src="../Client/main.js"></script>
+    <link rel="stylesheet" href="/Client/css/normalize.css">
+    <link rel="stylesheet" href="/Client/css/styles.css">
+    <script src="/Client/main.js"></script>
 </head>
 
 <body>
@@ -37,19 +37,19 @@ if (isset($_GET['action'])) {
 
 <div class="contenedor-juego hidden">
     <div class="tablero" id="tablero">
-        <img src="Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
+        <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
     </div>
 
     <div class="bandeja">
         <h3>Dinosaurios</h3>
         <div class="dinosaurios">
             <?php
-                $vistos = []; 
+                $vistos = [];
                 foreach ($bandeja as $dino) {
                     if (!in_array($dino->tipo, $vistos)) {
-                        echo '<img src="' . $dino->imagen . '" 
-                                    alt="' . $dino->tipo . '"
-                                    data-tipo="' . $dino->tipo . '" 
+                        echo '<img src="' . htmlspecialchars($dino->imagen, ENT_QUOTES, 'UTF-8') . '"
+                                    alt="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
+                                    data-tipo="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
                                     class="mini-dino"
                                     draggable="true">';
                         $vistos[] = $dino->tipo;

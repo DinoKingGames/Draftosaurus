@@ -254,10 +254,6 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.height = `${z.h}%`;
       el.dataset.zoneId = z.id;
 
-      const label = document.createElement('span');
-      label.className = 'label';
-      label.textContent = z.nombre ?? ('Zona ' + z.id);
-      el.appendChild(label);
       const slotsWrap = document.createElement('div');
       slotsWrap.className = 'slots';
       const cols = Math.max(1, (z.cols ?? z.slots ?? 1));
@@ -328,48 +324,41 @@ document.addEventListener('DOMContentLoaded', () => {
   const juego = document.querySelector('.contenedor-juego');
   const err = document.getElementById('init-error');
 
-  btn.addEventListener('click', async () => {
-    err.classList.add('hidden');
-    btn.disabled = true;
-    btn.textContent = 'Iniciando...';
+ btn.addEventListener('click', async () => {
+  err.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Iniciando...';
 
+  try {
+    const initUrl = new URL('/Client/jugar.php?action=init', window.location.origin);
+
+    const res = await fetch(initUrl.toString(), {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store',
+    });
+
+    let json;
     try {
-      // Construye URL relativa a ESTA página: ?action=init
-      const url = new URL(window.location.href);
-      url.search = ''; // limpiamos otros parámetros si los hubiera
-      url.searchParams.set('action', 'init');
-
-      const res = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        cache: 'no-store',
-      });
-
-      let json;
-      try {
-        json = await res.json();
-      } catch (parseErr) {
-        const txt = await res.text();
-        console.error('Respuesta no-JSON:', txt);
-        throw new Error('Respuesta no-JSON al iniciar');
-      }
-
-      if (!res.ok || !json?.success) {
-        throw new Error(json?.message || 'Error al iniciar');
-      }
-
-      // OK: mostrar tablero
-      pantalla.classList.add('hidden');
-      juego.classList.remove('hidden');
-
-      // window.__PARTIDA__ = json.data?.game ?? null;
-
-    } catch (e) {
-      console.error(e);
-      err.classList.remove('hidden');
-    } finally {
-      btn.disabled = false;
-      btn.textContent = 'Jugar';
+      json = await res.json();
+    } catch (parseErr) {
+      const txt = await res.text();
+      console.error('Respuesta no-JSON:', txt);
+      throw new Error('Respuesta no-JSON al iniciar');
     }
-  });
+
+    if (!res.ok || !json?.success) {
+      throw new Error(json?.message || 'Error al iniciar');
+    }
+
+    pantalla.classList.add('hidden');
+    juego.classList.remove('hidden');
+  } catch (e) {
+    console.error(e);
+    err.classList.remove('hidden');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Jugar';
+  }
+}); 
 });

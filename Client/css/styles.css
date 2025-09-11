@@ -696,3 +696,48 @@ img{
   color: #b00020;
   margin-top: 1rem;
 }
+
+/* Responsive: mover la bandeja debajo del tablero en pantallas pequeñas */
+@media (max-width: 900px) {
+  .contenedor-juego {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .tablero {
+    max-width: 100%;
+  }
+
+  .bandeja {
+    order: 2;                 
+    width: 100%;
+    flex: 0 0 auto;
+    flex-direction: row;      
+    align-items: center;
+    gap: 12px;
+  }
+
+  .bandeja h3 {
+    margin: 0 8px 0 0;
+    font-size: 2rem;
+  }
+
+  .dinosaurios {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 8px;
+    overflow-x: auto;         
+    width: 100%;
+    padding: 8px 0;
+  }
+
+  .mini-dino {
+    width: 48px;
+    height: 48px;
+  }
+
+  .bandeja img {
+    width: 48px;
+  }
+}
