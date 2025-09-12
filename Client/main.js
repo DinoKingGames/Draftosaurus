@@ -213,11 +213,38 @@ function actualizarMostrar(seccion, color) {
   btn.appendChild(img);
 }
 
-/* Juego */
-
 document.addEventListener('DOMContentLoaded', () => {
-  const tablero = document.getElementById('tablero');
-  if (!tablero) throw new Error('No se encontró #tablero en el DOM');
+  // ================== Config API ==================
+  const API_URL = '/Client/jugar.php';   // usamos el endpoint existente
+  const DEFAULT_PLAYER = 1;
+
+  async function api(action, params = {}) {
+    const isGet = action === 'init' || action === 'get_hand' || action === 'state';
+    if (isGet) {
+      const url = new URL(API_URL, window.location.origin);
+      url.searchParams.set('action', action);
+      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' },
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      return res.json();
+    } else {
+      const body = new URLSearchParams({ action, ...params });
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' },
+        body,
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      return res.json();
+    }
+  }
+
+  // ================== Drag util ==================
   let nextDragId = 1;
   function makeDraggable(img) {
     img.setAttribute('draggable', 'true');
@@ -227,12 +254,35 @@ document.addEventListener('DOMContentLoaded', () => {
         src: e.currentTarget.src,
         id: e.currentTarget.dataset.dragId,
         tipo: e.currentTarget.dataset?.tipo || null,
+        gameId: e.currentTarget.dataset?.gameId || null, // id real del backend si viene de la bandeja de la API
       });
       e.dataTransfer.setData('text/plain', payload);
       e.dataTransfer.effectAllowed = 'copyMove';
     });
   }
   document.querySelectorAll('.mini-dino').forEach(makeDraggable);
+
+  // ================== Bandeja (mano) ==================
+  function renderBandeja(hand) {
+    // Usa tu HTML actual
+    const cont = document.querySelector('.bandeja .dinosaurios');
+    if (!cont) return;
+    cont.innerHTML = '';
+    (hand || []).forEach(d => {
+      const img = document.createElement('img');
+      img.src = d.imagen;
+      img.alt = d.tipo || 'dino';
+      img.className = 'mini-dino';
+      img.dataset.tipo = d.tipo || '';
+      img.dataset.gameId = d.id; // clave que usaremos al hacer place
+      makeDraggable(img);
+      cont.appendChild(img);
+    });
+  }
+
+  // ================== Tablero y Zonas ==================
+  const tablero = document.getElementById('tablero');
+  if (!tablero) throw new Error('No se encontró #tablero en el DOM');
 
   const ZONAS = [
     { id: 1, nombre: 'Bosque Semejanza', x: 0,  y: 2,  w: 38, h: 32, slots: 6, cols: 6 },
@@ -275,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       el.addEventListener('dragleave', () => el.classList.remove('is-over'));
 
-      el.addEventListener('drop', (e) => {
+      el.addEventListener('drop', async (e) => {
         e.preventDefault();
         el.classList.remove('is-over');
 
@@ -283,30 +333,50 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!raw) return;
 
         let data;
-        try { data = JSON.parse(raw); } catch { data = { src: raw, id: null }; }
+        try { data = JSON.parse(raw); } catch { data = { src: raw, id: null, tipo: null, gameId: null }; }
 
-        const zoneId = el.dataset.zoneId;
-        let freeSlot;
-
-        if (zoneId === '2') {
-          freeSlot = Array.from(el.querySelectorAll('.slot')).reverse()
-            .find(s => !s.classList.contains('filled'));
-        } else {
-          freeSlot = el.querySelector('.slot:not(.filled)');
-        }
-
-        if (!freeSlot) {
+        const dinoId = data.gameId;
+        if (!dinoId) {
+          alert('Usa los dinosaurios de la bandeja (se actualiza desde el servidor).');
           return;
         }
 
-        const img = document.createElement('img');
-        img.src = data.src;
-        img.alt = data.tipo || 'dino';
-        img.className = 'dino';
-        img.draggable = false;
+        const zoneId = el.dataset.zoneId;
+        let freeSlot;
+        if (zoneId === '2') {
+          freeSlot = Array.from(el.querySelectorAll('.slot')).reverse().find(s => !s.classList.contains('filled'));
+        } else {
+          freeSlot = el.querySelector('.slot:not(.filled)');
+        }
+        if (!freeSlot) return;
 
-        freeSlot.classList.add('filled');
-        freeSlot.appendChild(img);
+        try {
+          const r = await api('place', { player: DEFAULT_PLAYER, dino_id: dinoId /*, zone_id: zoneId*/ });
+          if (!r?.success) {
+            alert(r?.message || 'Error al colocar el dinosaurio');
+            return;
+          }
+
+          // Colocar visualmente el dino aceptado por el backend
+          const placed = r.data?.placed_dino;
+          if (placed) {
+            const img = document.createElement('img');
+            img.src = placed.imagen;
+            img.alt = placed.tipo || 'dino';
+            img.className = 'dino';
+            img.draggable = false;
+
+            freeSlot.classList.add('filled');
+            freeSlot.appendChild(img);
+          }
+
+          renderBandeja(r.data?.new_hand || []);
+
+          if (r.data?.finished) alert('Partida finalizada');
+        } catch (err) {
+          console.error(err);
+          alert('Error de red al colocar el dinosaurio');
+        }
       });
 
       tablero.appendChild(el);
@@ -314,51 +384,36 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   renderZonas();
-});
 
-/* Iniciar Partida */
-
-document.addEventListener('DOMContentLoaded', () => {
+  // ================== Botón "Iniciar Partida" ==================
   const btn = document.getElementById('btn-iniciar');
   const pantalla = document.getElementById('pantalla-inicio');
   const juego = document.querySelector('.contenedor-juego');
   const err = document.getElementById('init-error');
 
- btn.addEventListener('click', async () => {
-  err.classList.add('hidden');
-  btn.disabled = true;
-  btn.textContent = 'Iniciando...';
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      if (err) err.classList.add('hidden');
+      btn.disabled = true;
+      btn.textContent = 'Iniciando...';
 
-  try {
-    const initUrl = new URL('/Client/jugar.php?action=init', window.location.origin);
+      try {
+        const initRes = await api('init');
+        if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
 
-    const res = await fetch(initUrl.toString(), {
-      method: 'GET',
-      headers: { 'Accept': 'application/json' },
-      cache: 'no-store',
+        if (pantalla) pantalla.classList.add('hidden');
+        if (juego) juego.classList.remove('hidden');
+
+        const handRes = await api('get_hand', { player: DEFAULT_PLAYER });
+        if (!handRes?.success) throw new Error(handRes?.message || 'Error al obtener mano');
+        renderBandeja(handRes.data?.hand || []);
+      } catch (e) {
+        console.error(e);
+        if (err) err.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Jugar';
+      }
     });
-
-    let json;
-    try {
-      json = await res.json();
-    } catch (parseErr) {
-      const txt = await res.text();
-      console.error('Respuesta no-JSON:', txt);
-      throw new Error('Respuesta no-JSON al iniciar');
-    }
-
-    if (!res.ok || !json?.success) {
-      throw new Error(json?.message || 'Error al iniciar');
-    }
-
-    pantalla.classList.add('hidden');
-    juego.classList.remove('hidden');
-  } catch (e) {
-    console.error(e);
-    err.classList.remove('hidden');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Jugar';
   }
 }); 
-});
