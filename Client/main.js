@@ -214,8 +214,7 @@ function actualizarMostrar(seccion, color) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ================== Config API ==================
-  const API_URL = '/Client/jugar.php';   // usamos el endpoint existente
+  const API_URL = '/Client/jugar.php';   
   const DEFAULT_PLAYER = 1;
 
   async function api(action, params = {}) {
@@ -244,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // ================== Drag util ==================
   let nextDragId = 1;
   function makeDraggable(img) {
     img.setAttribute('draggable', 'true');
@@ -254,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         src: e.currentTarget.src,
         id: e.currentTarget.dataset.dragId,
         tipo: e.currentTarget.dataset?.tipo || null,
-        gameId: e.currentTarget.dataset?.gameId || null, // id real del backend si viene de la bandeja de la API
+        gameId: e.currentTarget.dataset?.gameId || null,
       });
       e.dataTransfer.setData('text/plain', payload);
       e.dataTransfer.effectAllowed = 'copyMove';
@@ -262,9 +260,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.querySelectorAll('.mini-dino').forEach(makeDraggable);
 
-  // ================== Bandeja (mano) ==================
   function renderBandeja(hand) {
-    // Usa tu HTML actual
     const cont = document.querySelector('.bandeja .dinosaurios');
     if (!cont) return;
     cont.innerHTML = '';
@@ -274,13 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
       img.alt = d.tipo || 'dino';
       img.className = 'mini-dino';
       img.dataset.tipo = d.tipo || '';
-      img.dataset.gameId = d.id; // clave que usaremos al hacer place
+      img.dataset.gameId = d.id; 
       makeDraggable(img);
       cont.appendChild(img);
     });
   }
 
-  // ================== Tablero y Zonas ==================
   const tablero = document.getElementById('tablero');
   if (!tablero) throw new Error('No se encontró #tablero en el DOM');
 
@@ -351,13 +346,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!freeSlot) return;
 
         try {
-          const r = await api('place', { player: DEFAULT_PLAYER, dino_id: dinoId /*, zone_id: zoneId*/ });
+          const r = await api('place', { player: DEFAULT_PLAYER, dino_id: dinoId });
           if (!r?.success) {
             alert(r?.message || 'Error al colocar el dinosaurio');
             return;
           }
 
-          // Colocar visualmente el dino aceptado por el backend
           const placed = r.data?.placed_dino;
           if (placed) {
             const img = document.createElement('img');
@@ -370,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
             freeSlot.appendChild(img);
           }
 
+          // Refrescar la bandeja con los 5 nuevos
           renderBandeja(r.data?.new_hand || []);
 
           if (r.data?.finished) alert('Partida finalizada');
@@ -385,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderZonas();
 
-  // ================== Botón "Iniciar Partida" ==================
+
   const btn = document.getElementById('btn-iniciar');
   const pantalla = document.getElementById('pantalla-inicio');
   const juego = document.querySelector('.contenedor-juego');
@@ -417,3 +412,69 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 }); 
+
+(function () {
+  const btn = document.getElementById('btn-iniciar');
+  const pantalla = document.getElementById('pantalla-inicio');
+  const contenedorJuego = document.querySelector('.contenedor-juego');
+  const errorEl = document.getElementById('init-error');
+
+  if (!btn || !pantalla || !contenedorJuego) return;
+
+  const setLoading = (loading) => {
+    btn.ariaBusy = String(loading);
+    if (loading) {
+      btn.classList.add('is-loading');
+      btn.setAttribute('disabled', 'true');
+      btn.textContent = 'Iniciando...';
+    } else {
+      btn.classList.remove('is-loading');
+      btn.removeAttribute('disabled');
+      btn.textContent = 'Jugar';
+    }
+  };
+
+  const showError = (msg) => {
+    if (errorEl) {
+      errorEl.textContent = msg || 'No se pudo iniciar la partida. Intenta nuevamente.';
+      errorEl.classList.remove('hidden');
+    }
+  };
+
+  const hideError = () => errorEl && errorEl.classList.add('hidden');
+
+  const startGame = async () => {
+    try {
+      hideError();
+      setLoading(true);
+
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('action', 'init');
+
+      const res = await fetch(url.toString(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json, text/plain, */*' },
+        credentials: 'same-origin',
+      });
+
+      if (!res.ok) {
+        throw new Error(`Error ${res.status}`);
+      }
+      pantalla.classList.add('hidden');
+      contenedorJuego.classList.remove('hidden');
+    } catch (err) {
+      console.error(err);
+      showError('No se pudo iniciar la partida. Intenta nuevamente.');
+      setLoading(false);
+    }
+  };
+
+  btn.addEventListener('click', startGame);
+  btn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.code === 'Space') {
+      e.preventDefault();
+      if (!btn.disabled) startGame();
+    }
+  });
+})();
