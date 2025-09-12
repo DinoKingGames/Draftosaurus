@@ -1,5 +1,4 @@
 <?php
-// API inline: permite usar ?action=init|get_hand|place y también ?init=1 como alias de init.
 if (isset($_GET['init']) && !isset($_REQUEST['action'])) {
     $_GET['action'] = 'init';
     $_REQUEST['action'] = 'init';
@@ -20,13 +19,11 @@ if (isset($_REQUEST['action'])) {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/Client/css/normalize.css">
     <link rel="stylesheet" href="/Client/css/styles.css">
+    <link rel="stylesheet" href="/Client/css/turnos.css">
     <script src="/Client/main.js" defer></script>
-
-
 </head>
 
 <body>
-
 <?php
     require __DIR__ . '/../Controllers/DinosaurioController.php';
     $controller = new DinosaurioController();
@@ -50,29 +47,56 @@ if (isset($_REQUEST['action'])) {
   </div>
 </section>
 
-<div class="contenedor-juego hidden">
-    <div class="tablero" id="tablero">
-        <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
+<div class="juego-multi">
+  <div class="contenedor-juego hidden" data-player="1">
+    <h3 style="margin: 8px 0;">Jugador 1</h3>
+    <div class="tablero" id="tablero-1">
+      <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
     </div>
-
     <div class="bandeja">
-        <h3>Dinosaurios</h3>
-        <div class="dinosaurios">
-            <?php
-                $vistos = [];
-                foreach ($bandeja as $dino) {
-                    if (!in_array($dino->tipo, $vistos)) {
-                        echo '<img src="' . htmlspecialchars($dino->imagen, ENT_QUOTES, 'UTF-8') . '"
-                                    alt="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
-                                    data-tipo="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
-                                    class="mini-dino"
-                                    draggable="true">';
-                        $vistos[] = $dino->tipo;
-                    }
-                }
-            ?>
-        </div>
+      <h4>Dinosaurios</h4>
+      <div class="dinosaurios" id="bandeja-1">
+        <?php
+          $vistos = [];
+          foreach ($bandeja as $dino) {
+              if (!in_array($dino->tipo, $vistos)) {
+                  echo '<img src="' . htmlspecialchars($dino->imagen, ENT_QUOTES, 'UTF-8') . '"
+                              alt="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
+                              data-tipo="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
+                              class="mini-dino"
+                              draggable="true">';
+                  $vistos[] = $dino->tipo;
+              }
+          }
+        ?>
+      </div>
     </div>
+  </div>
+
+   <div class="contenedor-juego hidden" data-player="2">
+    <h3 style="margin: 8px 0;">Jugador 2</h3>
+    <div class="tablero" id="tablero-2">
+      <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
+    </div>
+    <div class="bandeja">
+      <h4>Dinosaurios</h4>
+      <div class="dinosaurios" id="bandeja-2">
+        <?php
+          $vistos = [];
+          foreach ($bandeja as $dino) {
+              if (!in_array($dino->tipo, $vistos)) {
+                  echo '<img src="' . htmlspecialchars($dino->imagen, ENT_QUOTES, 'UTF-8') . '"
+                              alt="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
+                              data-tipo="' . htmlspecialchars($dino->tipo, ENT_QUOTES, 'UTF-8') . '"
+                              class="mini-dino"
+                              draggable="true">';
+                  $vistos[] = $dino->tipo;
+              }
+          }
+        ?>
+      </div>
+    </div>
+  </div>
 </div>
 
 </body>

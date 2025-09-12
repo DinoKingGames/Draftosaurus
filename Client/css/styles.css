@@ -701,7 +701,6 @@ img{
         background-color: #ffffff;
       }
 
-      /* Tarjeta: #b19604 con contraste mejorado */
       .pantalla-inicio .inicio-card {
         background: linear-gradient(180deg, #b19604, #a88e03);
         border: 1px solid rgba(0,0,0,0.05);
@@ -709,17 +708,15 @@ img{
         box-shadow:
           0 14px 32px rgba(177,150,4,0.20),
           0 2px 0 rgba(255,255,255,0.35) inset;
-        color: #ffffff; /* textos en blanco */
+        color: #ffffff;
         padding-bottom: 24px;
       }
 
-      /* Títulos y texto en blanco sobre dorado */
       .pantalla-inicio .inicio-card h2,
       .pantalla-inicio .inicio-card p {
         color: #ffffff;
       }
 
-      /* Imagen con leve marco para separarla del fondo */
       .inicio-card .intro-dino {
         width: min(220px, 60vw);
         height: auto;
@@ -762,3 +759,85 @@ img{
           0 0 0 3px rgba(255,255,255,0.9),
           0 0 0 6px rgba(47,170,106,0.45);
       }
+
+
+.contenedor-juego {
+  transition: transform 320ms ease, opacity 320ms ease;
+}
+
+.contenedor-juego.anim-out {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+
+.contenedor-juego.anim-in {
+  opacity: 0;
+  transform: translateX(28px);
+}
+
+.juego-multi .contenedor-juego .tablero .imagen-tablero {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+
+@media (min-width: 900px) {
+  .juego-multi .contenedor-juego {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .juego-multi .contenedor-juego .tablero {
+    flex: 1 1 auto;   
+    min-width: 0;     
+  }
+
+  .juego-multi .contenedor-juego .bandeja {
+    flex: 0 0 clamp(240px, 28vw, 360px); 
+    width: clamp(240px, 28vw, 360px);   
+  }
+
+  .juego-multi .contenedor-juego .bandeja .dinosaurios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 900px) {
+  .juego-multi .contenedor-juego {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .juego-multi .contenedor-juego .tablero {
+    order: 1;
+    width: 100%;
+  }
+
+  .juego-multi .contenedor-juego .bandeja {
+    order: 2;
+    width: 100%;
+    float: none !important; 
+  }
+
+  .juego-multi .contenedor-juego .bandeja h4 {
+    margin: 6px 0;
+    text-align: center;
+  }
+
+  .juego-multi .contenedor-juego .bandeja .dinosaurios {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .juego-multi .mini-dino {
+    max-width: 56px;
+    height: auto;
+  }
+}

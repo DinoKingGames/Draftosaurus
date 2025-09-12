@@ -18,9 +18,7 @@ let [campoUnoCantidad, campoDosCantidad, campoTresCantidad, campoCuatroCantidad,
 let campoCincoUsados = [false,false,false,false,false,false];
 
 // mantenemos tu contador de colores por sección, pero lo usamos sólo para el score
-let campoColores = {
-  1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []
-};
+let campoColores = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
 
 let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0, 0];
 
@@ -33,26 +31,15 @@ function terminarPartida(){
 
 function mostrarMensaje(texto) {
   const cont = document.getElementById('mensaje');
-  cont.textContent = texto;
+  if (cont) cont.textContent = texto;
 }
 
 function selectUno() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
-    if (campoUnoColor === undefined) {
-        campoUnoColor = seleccion;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+    if (campoUnoColor === undefined) campoUnoColor = seleccion;
     const puntos = [0,2,4,8,12,18,24];
-    if (seleccion !== campoUnoColor) {
-        mostrarMensaje('No se acepta');
-        return;
-    }
-    if (campoUnoCantidad >= 6) {
-        mostrarMensaje('Máximo 6 dinosaurios');
-        return;
-    }
+    if (seleccion !== campoUnoColor) return mostrarMensaje('No se acepta');
+    if (campoUnoCantidad >= 6) return mostrarMensaje('Máximo 6 dinosaurios');
     campoUnoCantidad++;
     campoColores[1].push(seleccion);
     totalPorColor[seleccion]++;
@@ -63,10 +50,7 @@ function selectUno() {
 }
 
 function selectDos() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
     campoDosCantidad++;
     campoColores[2].push(seleccion);
     totalPorColor[seleccion]++;
@@ -77,22 +61,14 @@ function selectDos() {
 }
 
 function selectTres() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
-    if (campoTresCantidad >= 1) {
-        mostrarMensaje('Solo se permite ingresar un dinosaurio');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+    if (campoTresCantidad >= 1) return mostrarMensaje('Solo se permite ingresar un dinosaurio');
     campoTresColor = seleccion;
     campoTresCantidad++;
     campoColores[3].push(seleccion);
     totalPorColor[seleccion]++;
     let max = 0;
-    for (let i = 0; i < totalPorColor.length; i++) {
-        if (totalPorColor[i] > max) max = totalPorColor[i];
-    }
+    for (let i = 0; i < totalPorColor.length; i++) if (totalPorColor[i] > max) max = totalPorColor[i];
     scoreTres = (totalPorColor[campoTresColor] === max) ? 7 : 0;
     totalColocados++;
     actualizarMostrar(3, seleccion);
@@ -100,10 +76,7 @@ function selectTres() {
 }
 
 function selectCuatro() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
     campoCuatroCantidad++;
     campoColores[4].push(seleccion);
     totalPorColor[seleccion]++;
@@ -114,14 +87,8 @@ function selectCuatro() {
 }
 
 function selectCinco() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
-    if (campoCincoUsados[seleccion]) {
-        mostrarMensaje('No puedes tener 2 dinosaurios del mismo color');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+    if (campoCincoUsados[seleccion]) return mostrarMensaje('No puedes tener 2 dinosaurios del mismo color');
     campoCincoUsados[seleccion] = true;
     campoCincoCantidad++;
     campoColores[5].push(seleccion);
@@ -134,17 +101,12 @@ function selectCinco() {
 }
 
 function selectSeis() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
     campoSeisCantidad++;
     campoColores[6].push(seleccion);
     totalPorColor[seleccion]++;
     let pares = 0;
-    for (let i = 0; i < totalPorColor.length; i++) {
-        pares += Math.floor(totalPorColor[i]/2);
-    }
+    for (let i = 0; i < totalPorColor.length; i++) pares += Math.floor(totalPorColor[i]/2);
     scoreSeis = pares * 5;
     totalColocados++;
     actualizarMostrar(6, seleccion);
@@ -152,14 +114,8 @@ function selectSeis() {
 }
 
 function selectSiete() {
-    if (seleccion === null) {
-        mostrarMensaje('Selecciona un dinosaurio');
-        return;
-    }
-    if (campoSieteCantidad >= 1) {
-        mostrarMensaje('Solo se permite un dinosaurio aquí');
-        return;
-    }
+    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+    if (campoSieteCantidad >= 1) return mostrarMensaje('Solo se permite un dinosaurio aquí');
     campoSieteCantidad++;
     campoColores[7].push(seleccion);
     totalPorColor[seleccion]++;
@@ -169,44 +125,16 @@ function selectSiete() {
     terminarPartida();
 }
 
-function slctRojo() {
-    seleccion = 0;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-rojo').classList.add('cambio');
-}
-
-function slctCyan() {
-    seleccion = 1;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-cyan').classList.add('cambio');
-}
-
-function slctNaranja() {
-    seleccion = 2;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-naranja').classList.add('cambio');
-}
-
-function slctRosa() {
-    seleccion = 3;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-rosa').classList.add('cambio');
-}
-
-function slctVerde() {
-    seleccion = 4;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-verde').classList.add('cambio');
-}
-
-function slctAzul() {
-    seleccion = 5;
-    document.querySelectorAll('.icono').forEach(icon => icon.classList.remove('cambio'));
-    document.getElementById('ico-azul').classList.add('cambio');
-}
+function slctRojo() { seleccion = 0; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-rojo'); if (el) el.classList.add('cambio'); }
+function slctCyan() { seleccion = 1; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-cyan'); if (el) el.classList.add('cambio'); }
+function slctNaranja() { seleccion = 2; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-naranja'); if (el) el.classList.add('cambio'); }
+function slctRosa() { seleccion = 3; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-rosa'); if (el) el.classList.add('cambio'); }
+function slctVerde() { seleccion = 4; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-verde'); if (el) el.classList.add('cambio'); }
+function slctAzul() { seleccion = 5; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-azul'); if (el) el.classList.add('cambio'); }
 
 function actualizarMostrar(seccion, color) {
   const btn = document.getElementById(`btn${seccion}`);
+  if (!btn) return;
   const img = document.createElement('img');
   img.src = `imgs/minis/${dinosaurios[color]}.png`;
   img.classList.add('mini-dino');
@@ -215,7 +143,38 @@ function actualizarMostrar(seccion, color) {
 
 document.addEventListener('DOMContentLoaded', () => {
   const API_URL = '/Client/jugar.php';   
-  const DEFAULT_PLAYER = 1;
+  let currentPlayer = 1; // empezamos por el jugador 1
+  let isSwitching = false;
+
+  function showPlayer(p) {
+    document.querySelectorAll('.contenedor-juego').forEach(el => {
+      const isCurrent = Number(el.dataset.player) === p;
+      el.classList.toggle('hidden', !isCurrent);
+    });
+    currentPlayer = p;
+  }
+
+  // Cambiar de jugador con una animación simple (slide + fade)
+  function switchPlayerAnimated(nextPlayer) {
+    const currentEl = document.querySelector(`.contenedor-juego[data-player="${currentPlayer}"]`);
+    const nextEl = document.querySelector(`.contenedor-juego[data-player="${nextPlayer}"]`);
+    if (!currentEl || !nextEl) { showPlayer(nextPlayer); return; }
+
+    // animar salida del actual
+    currentEl.classList.add('anim-out');
+    setTimeout(() => {
+      currentEl.classList.remove('anim-out');
+      currentEl.classList.add('hidden');
+
+      // preparar y animar entrada del siguiente
+      nextEl.classList.add('anim-in');
+      nextEl.classList.remove('hidden');
+      void nextEl.offsetWidth; // forzar reflow para que transicione
+      nextEl.classList.remove('anim-in');
+
+      currentPlayer = nextPlayer;
+    }, 320); // debe coincidir con el CSS (~320ms)
+  }
 
   async function api(action, params = {}) {
     const isGet = action === 'init' || action === 'get_hand' || action === 'state';
@@ -260,8 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   document.querySelectorAll('.mini-dino').forEach(makeDraggable);
 
-  function renderBandeja(hand) {
-    const cont = document.querySelector('.bandeja .dinosaurios');
+  function renderBandejaFor(player, hand) {
+    const cont = document.querySelector(`.contenedor-juego[data-player="${player}"] .bandeja .dinosaurios`);
     if (!cont) return;
     cont.innerHTML = '';
     (hand || []).forEach(d => {
@@ -276,9 +235,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const tablero = document.getElementById('tablero');
-  if (!tablero) throw new Error('No se encontró #tablero en el DOM');
-
   const ZONAS = [
     { id: 1, nombre: 'Bosque Semejanza', x: 0,  y: 2,  w: 38, h: 32, slots: 6, cols: 6 },
     { id: 3, nombre: 'Trío Frondoso',    x: 10, y: 37, w: 23, h: 18, slots: 3, cols: 3 },
@@ -289,7 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 2, nombre: 'Río',              x: 50, y: 0,  w: 8,  h: 100, slots: 8, cols: 1 }, 
   ];
 
-  function renderZonas() {
+  function renderZonasFor(tablero, player) {
+    if (!tablero) return;
+    tablero.querySelectorAll('.dropzone').forEach(z => z.remove());
+
     ZONAS.forEach(z => {
       const el = document.createElement('div');
       el.className = 'dropzone';
@@ -298,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.width  = `${z.w}%`;
       el.style.height = `${z.h}%`;
       el.dataset.zoneId = z.id;
+      el.dataset.player = String(player);
 
       const slotsWrap = document.createElement('div');
       slotsWrap.className = 'slots';
@@ -315,6 +275,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       el.addEventListener('dragover', (e) => {
         e.preventDefault();
+        const boardPlayer = Number(el.closest('.contenedor-juego')?.dataset.player || player);
+        if (boardPlayer !== currentPlayer) return;
         el.classList.add('is-over');
         if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
       });
@@ -323,6 +285,13 @@ document.addEventListener('DOMContentLoaded', () => {
       el.addEventListener('drop', async (e) => {
         e.preventDefault();
         el.classList.remove('is-over');
+        if (isSwitching) return;
+
+        const boardPlayer = Number(el.closest('.contenedor-juego')?.dataset.player || player);
+        if (boardPlayer !== currentPlayer) {
+          alert('No es tu turno');
+          return;
+        }
 
         const raw = e.dataTransfer.getData('text/plain');
         if (!raw) return;
@@ -346,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!freeSlot) return;
 
         try {
-          const r = await api('place', { player: DEFAULT_PLAYER, dino_id: dinoId });
+          const r = await api('place', { player: currentPlayer, dino_id: dinoId });
           if (!r?.success) {
             alert(r?.message || 'Error al colocar el dinosaurio');
             return;
@@ -364,8 +333,22 @@ document.addEventListener('DOMContentLoaded', () => {
             freeSlot.appendChild(img);
           }
 
-          // Refrescar la bandeja con los 5 nuevos
-          renderBandeja(r.data?.new_hand || []);
+          renderBandejaFor(currentPlayer, r.data?.new_hand || []);
+
+          const nextPlayer = (r?.data?.game?.current_player != null)
+            ? Number(r.data.game.current_player)
+            : (currentPlayer === 1 ? 2 : 1);
+
+          try {
+            const handNext = await api('get_hand', { player: nextPlayer });
+            if (handNext?.success) renderBandejaFor(nextPlayer, handNext.data?.hand || []);
+          } catch {}
+
+          isSwitching = true;
+          setTimeout(() => {
+            switchPlayerAnimated(nextPlayer);
+            isSwitching = false;
+          }, 400); 
 
           if (r.data?.finished) alert('Partida finalizada');
         } catch (err) {
@@ -378,12 +361,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  renderZonas();
-
+  document.querySelectorAll('.contenedor-juego').forEach(boardEl => {
+    const player = Number(boardEl.dataset.player || '1');
+    const tablero = boardEl.querySelector('.tablero');
+    renderZonasFor(tablero, player);
+  });
 
   const btn = document.getElementById('btn-iniciar');
   const pantalla = document.getElementById('pantalla-inicio');
-  const juego = document.querySelector('.contenedor-juego');
   const err = document.getElementById('init-error');
 
   if (btn) {
@@ -397,11 +382,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
 
         if (pantalla) pantalla.classList.add('hidden');
-        if (juego) juego.classList.remove('hidden');
+        showPlayer(1);
 
-        const handRes = await api('get_hand', { player: DEFAULT_PLAYER });
-        if (!handRes?.success) throw new Error(handRes?.message || 'Error al obtener mano');
-        renderBandeja(handRes.data?.hand || []);
+        for (const p of [1, 2]) {
+          const handRes = await api('get_hand', { player: p });
+          if (!handRes?.success) throw new Error(handRes?.message || `Error al obtener mano del jugador ${p}`);
+          renderBandejaFor(p, handRes.data?.hand || []);
+        }
       } catch (e) {
         console.error(e);
         if (err) err.classList.remove('hidden');
@@ -411,70 +398,4 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-}); 
-
-(function () {
-  const btn = document.getElementById('btn-iniciar');
-  const pantalla = document.getElementById('pantalla-inicio');
-  const contenedorJuego = document.querySelector('.contenedor-juego');
-  const errorEl = document.getElementById('init-error');
-
-  if (!btn || !pantalla || !contenedorJuego) return;
-
-  const setLoading = (loading) => {
-    btn.ariaBusy = String(loading);
-    if (loading) {
-      btn.classList.add('is-loading');
-      btn.setAttribute('disabled', 'true');
-      btn.textContent = 'Iniciando...';
-    } else {
-      btn.classList.remove('is-loading');
-      btn.removeAttribute('disabled');
-      btn.textContent = 'Jugar';
-    }
-  };
-
-  const showError = (msg) => {
-    if (errorEl) {
-      errorEl.textContent = msg || 'No se pudo iniciar la partida. Intenta nuevamente.';
-      errorEl.classList.remove('hidden');
-    }
-  };
-
-  const hideError = () => errorEl && errorEl.classList.add('hidden');
-
-  const startGame = async () => {
-    try {
-      hideError();
-      setLoading(true);
-
-      const url = new URL(window.location.href);
-      url.search = '';
-      url.searchParams.set('action', 'init');
-
-      const res = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json, text/plain, */*' },
-        credentials: 'same-origin',
-      });
-
-      if (!res.ok) {
-        throw new Error(`Error ${res.status}`);
-      }
-      pantalla.classList.add('hidden');
-      contenedorJuego.classList.remove('hidden');
-    } catch (err) {
-      console.error(err);
-      showError('No se pudo iniciar la partida. Intenta nuevamente.');
-      setLoading(false);
-    }
-  };
-
-  btn.addEventListener('click', startGame);
-  btn.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.code === 'Space') {
-      e.preventDefault();
-      if (!btn.disabled) startGame();
-    }
-  });
-})();
+});
