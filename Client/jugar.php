@@ -1,12 +1,17 @@
 <?php
-if (isset($_GET['action']) && $_GET['action'] === 'init') {
+// API inline: permite usar ?action=init|get_hand|place y también ?init=1 como alias de init.
+if (isset($_GET['init']) && !isset($_REQUEST['action'])) {
+    $_GET['action'] = 'init';
+    $_REQUEST['action'] = 'init';
+}
+if (isset($_REQUEST['action'])) {
     require_once __DIR__ . '/../Controllers/JuegoControlador.php';
-    JuegoControlador::initEndpoint();
+    JuegoControlador::handleRequest();
     exit;
 }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,7 +20,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'init') {
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/Client/css/normalize.css">
     <link rel="stylesheet" href="/Client/css/styles.css">
-    <script src="/Client/main.js"></script>
+    <script src="/Client/main.js" defer></script>
 </head>
 
 <body>
