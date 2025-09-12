@@ -21,6 +21,8 @@ if (isset($_REQUEST['action'])) {
     <link rel="stylesheet" href="/Client/css/normalize.css">
     <link rel="stylesheet" href="/Client/css/styles.css">
     <script src="/Client/main.js" defer></script>
+
+
 </head>
 
 <body>
@@ -33,8 +35,16 @@ if (isset($_REQUEST['action'])) {
 
 <section id="pantalla-inicio" class="pantalla-inicio">
   <div class="inicio-card">
+    <img
+      src="/Client/imgs/dinoIntroFinal.gif"
+      alt="Dinosaurio de bienvenida"
+      class="intro-dino"
+      width="220"
+      height="220"
+      loading="eager"
+    >
     <h2 class="m0 text-center">Draftosaurus</h2>
-    <p class="text-center">Presiona para iniciar la partida</p>
+    <p class="text-center">¡Que empiece la aventura jurasica!</p>
     <button id="btn-iniciar" class="btn btn-primary">Jugar</button>
     <p id="init-error" class="init-error hidden">No se pudo iniciar la partida. Intenta nuevamente.</p>
   </div>
