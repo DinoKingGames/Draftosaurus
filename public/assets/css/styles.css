@@ -1078,3 +1078,20 @@ img{
   color: #14532d;
   border-color: #14532d;
 }
+
+.navegacion a.btn-auth,
+.navegacion a.btn-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.6rem;
+}
+
+.nav-icon,
+.user-icon {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
