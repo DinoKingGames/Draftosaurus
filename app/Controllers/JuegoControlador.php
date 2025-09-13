@@ -1,69 +1,35 @@
 <?php
-require_once APP_PATH . '/Controllers/DinosaurioController.php';
+// Controlador principal del juego (persistencia vía mysqli + GameResume)
 
-class JuegoControlador {
-    // Tamaño fijo de la mano/bandeja
+require_once APP_PATH . '/Controllers/DinosaurioController.php';
+require_once APP_PATH . '/config/database.php';                 // define db(): mysqli
+require_once APP_PATH . '/Repositories/EstadoPartidaRepository.php';  // clase GameResume (mysqli)
+
+class JuegoControlador
+{
     private const HAND_SIZE = 6;
 
-    // Configuración de recintos (nombres exactos usados en las validaciones)
-    private static $RECINTOS = [
-        "El Bosque de la Semejanza",
-        "El Prado de la Diferencia",
-        "La Pradera del Amor",
-        "El Trío Frondoso",
-        "El Rey de la Selva",
-        "La Isla Solitaria",
-        "El Rio"
+    // Recintos válidos (nombres exactos)
+    private static array $RECINTOS = [
+        'El Bosque de la Semejanza',
+        'El Prado de la Diferencia',
+        'La Pradera del Amor',
+        'El Trío Frondoso',
+        'El Rey de la Selva',
+        'La Isla Solitaria',
+        'El Rio',
     ];
 
-    // Respuesta JSON estandarizada
-    private static function jsonResponse($success, $code, $message, $data = null) {
+    private static function jsonResponse(bool $success, int $code, string $message, $data = null): void {
         header('Content-Type: application/json; charset=utf-8');
-        $resp = [
-            'success' => (bool)$success,
-            'code' => (int)$code,
-            'message' => (string)$message,
-        ];
+        $resp = ['success' => $success, 'code' => $code, 'message' => $message];
         if (!is_null($data)) $resp['data'] = $data;
         echo json_encode($resp, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         exit;
     }
 
-    // Inicia sesión y crea el juego si no existe (compatibilidad con endpoint legacy)
-    public static function initEndpoint() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (!isset($_SESSION['game'])) {
-            $_SESSION['game'] = self::createGame();
-            self::jsonResponse(true, 0, 'Juego creado', ['game' => self::publicState($_SESSION['game'])]);
-        }
-        self::jsonResponse(true, 0, 'Juego ya inicializado', ['game' => self::publicState($_SESSION['game'])]);
-    }
-
-    // Convierte un dinosaurio (objeto/array) a forma pública segura
-    private static function pubDino($d) {
-        if (is_object($d)) {
-            return [
-                'id' => property_exists($d, 'id') ? $d->id : null,
-                'tipo' => property_exists($d, 'tipo') ? $d->tipo : null,
-                'imagen' => property_exists($d, 'imagen') ? $d->imagen : null,
-            ];
-        }
-        if (is_array($d)) {
-            return [
-                'id' => $d['id'] ?? null,
-                'tipo' => $d['tipo'] ?? null,
-                'imagen' => $d['imagen'] ?? null,
-            ];
-        }
-        return ['id' => null, 'tipo' => null, 'imagen' => null];
-    }
-
-    // Devuelve estado público (oculta detalles sensibles si es necesario)
-    private static function publicState($g) {
-        // Para transparencia, exponemos manos en formato sanitizado
+    private static function publicState(array $g): array {
         return [
-            'species' => $g['species'],
-            'hands_count' => [1 => count($g['hands'][1]), 2 => count($g['hands'][2])],
             'hands' => [
                 1 => array_map([self::class, 'pubDino'], $g['hands'][1]),
                 2 => array_map([self::class, 'pubDino'], $g['hands'][2]),
@@ -79,10 +45,26 @@ class JuegoControlador {
         ];
     }
 
-    // Construye el saco de 48 dinosaurios con id/tipo/imagen
-    private static function buildSack48() {
+    private static function pubDino($d): array {
+        if (is_object($d)) {
+            return [
+                'id' => property_exists($d, 'id') ? $d->id : null,
+                'tipo' => property_exists($d, 'tipo') ? $d->tipo : null,
+                'imagen' => property_exists($d, 'imagen') ? $d->imagen : null,
+            ];
+        } elseif (is_array($d)) {
+            return [
+                'id' => $d['id'] ?? null,
+                'tipo' => $d['tipo'] ?? null,
+                'imagen' => $d['imagen'] ?? null,
+            ];
+        }
+        return ['id' => null, 'tipo' => null, 'imagen' => null];
+    }
+
+    private static function buildSack48(): array {
         $dc = new DinosaurioController();
-        $sack = $dc->asignacion(); // devuelve 48
+        $sack = $dc->asignacion(); // debe devolver 48
         if (!is_array($sack) || count($sack) !== 48) {
             throw new RuntimeException('No se pudo construir el saco de 48 dinosaurios.');
         }
@@ -90,16 +72,14 @@ class JuegoControlador {
         return $sack;
     }
 
-    // Extrae n elementos del saco (al final del array)
-    private static function draw(&$sack, $n) {
+    private static function draw(array &$sack, int $n): array {
         $out = [];
         $n = min($n, count($sack));
-        for ($i=0; $i<$n; $i++) $out[] = array_pop($sack);
+        for ($i = 0; $i < $n; $i++) $out[] = array_pop($sack);
         return $out;
     }
 
-    // Busca el índice de un dino por id dentro de una mano
-    private static function findDinoIndexInHand($hand, $dinoId) {
+    private static function findDinoIndexInHand(array $hand, $dinoId): int {
         foreach ($hand as $i => $d) {
             $id = is_object($d) ? ($d->id ?? null) : (is_array($d) ? ($d['id'] ?? null) : null);
             if ((string)$id === (string)$dinoId) return $i;
@@ -107,20 +87,15 @@ class JuegoControlador {
         return -1;
     }
 
-    // Crea el juego: 48 dinos, repartir 6 a cada jugador
-    private static function createGame() {
-        // Especies visibles (colores) para UI pública
+    private static function createGame(): array {
         $species = ["Azul","Cyan","Naranja","Rojo","Rosado","Verde"];
-
         $sack = self::buildSack48();
 
-        // Repartir 6 a cada jugador
         $hands = [1=>[],2=>[]];
-        for ($p=1;$p<=2;$p++) {
+        for ($p=1; $p<=2; $p++) {
             $hands[$p] = self::draw($sack, self::HAND_SIZE);
         }
 
-        // Crear tableros vacíos con 7 recintos
         $boards = [1=>[],2=>[]];
         foreach ([1,2] as $p) {
             foreach (self::$RECINTOS as $r) $boards[$p][$r] = [];
@@ -133,97 +108,178 @@ class JuegoControlador {
             'boards' => $boards,
             'overall_round' => 1,
             'cycle' => 1,
-            'placed' => [1=>false,2=>false],
             'current_player' => 1,
+            'placed' => 0,
             'finished' => false,
-            'players' => [1 => 'Jugador 1', 2 => 'Jugador 2'],
-            // Nuevo: conteo de colocados por jugador para detectar fin de partida (12 c/u)
             'placed_count' => [1=>0, 2=>0],
+            'players' => [1=>'Jugador 1', 2=>'Jugador 2'],
         ];
     }
 
-    // Endpoint público que atiende acciones simples
-    public static function handleRequest() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        if (!isset($_SESSION['game'])) {
-            $_SESSION['game'] = self::createGame();
-        }
-        $g = &$_SESSION['game'];
+    private static function storage(): GameResume {
+        static $storage = null;
+        if ($storage === null) $storage = new GameResume(db());
+        return $storage;
+    }
 
+    private static function currentUserId(): int {
+        if (session_status() === PHP_SESSION_NONE) session_start();
+        $cands = [
+            $_REQUEST['user_id'] ?? null,
+            $_SESSION['usuario_id'] ?? null,
+            $_SESSION['usuario']['id'] ?? null,
+            $_SESSION['user']['id'] ?? null,
+        ];
+        foreach ($cands as $v) {
+            $id = (int)$v;
+            if ($id > 0) return $id;
+        }
+        return 0;
+    }
+
+    public static function handleRequest(): void {
+        if (session_status() === PHP_SESSION_NONE) session_start();
         $action = $_REQUEST['action'] ?? null;
+        if (!$action) self::jsonResponse(false, 400, 'Acción no especificada. Uso: action=init|get_hand|state|place|winner|load');
 
         switch ($action) {
-            case 'init':
-                // Reinicia la partida y reparte 6 a cada jugador
+            case 'init': {
                 $_SESSION['game'] = self::createGame();
-                $g = &$_SESSION['game'];
-                self::jsonResponse(true, 0, 'Juego inicializado', ['game' => self::publicState($g)]);
+
+                $gameId = null;
+                $persistWarning = null;
+                $user1 = self::currentUserId();
+                $opponent = isset($_REQUEST['opponent_id']) ? (int)$_REQUEST['opponent_id'] : null;
+
+                if ($user1 > 0) {
+                    try {
+                        $gameId = self::storage()->createPartida($user1, $opponent, $_SESSION['game']);
+                    } catch (Throwable $e) {
+                        $persistWarning = 'No se pudo persistir la partida: ' . $e->getMessage();
+                    }
+                }
+
+                $data = [
+                    'game_id' => $gameId,
+                    'game' => self::publicState($_SESSION['game']),
+                ];
+                if ($persistWarning) $data['persist_warning'] = $persistWarning;
+
+                self::jsonResponse(true, 0, 'Juego inicializado', $data);
                 break;
+            }
+
+            case 'load': {
+                $gameId = isset($_REQUEST['game_id']) ? (int)$_REQUEST['game_id'] : 0;
+                $userId = self::currentUserId();
+                if ($gameId <= 0 || $userId <= 0) self::jsonResponse(false, 400, 'Faltan game_id o user_id');
+
+                $state = self::storage()->loadStateForUser($gameId, $userId);
+                if (!$state) self::jsonResponse(false, 404, 'Partida no encontrada o no perteneces a ella');
+
+                $_SESSION['game'] = $state;
+                self::jsonResponse(true, 0, 'OK', [
+                    'game_id' => $gameId,
+                    'game' => self::publicState($_SESSION['game']),
+                ]);
+                break;
+            }
 
             case 'get_hand': {
+                if (!isset($_SESSION['game'])) self::jsonResponse(false, 409, 'No hay partida cargada (usa init o load)');
+                $g = &$_SESSION['game'];
                 $p = isset($_REQUEST['player']) ? (int)$_REQUEST['player'] : 1;
                 if (!in_array($p, [1,2], true)) self::jsonResponse(false, 400, 'Parámetro player inválido (use 1 o 2)');
+
+                $calc = self::calculateWinner($g);
+                $scores = [
+                    1 => $calc['players'][1]['total'] ?? 0,
+                    2 => $calc['players'][2]['total'] ?? 0,
+                ];
+
                 self::jsonResponse(true, 0, 'OK', [
                     'player' => $p,
                     'hand' => array_map([self::class, 'pubDino'], $g['hands'][$p]),
                     'sack_remaining' => count($g['sack']),
                     'placed_count' => $g['placed_count'],
-                    'finished' => $g['finished'],
+                    'scores' => $scores,
+                    'game' => self::publicState($g),
                 ]);
                 break;
             }
 
-            case 'state':
-                self::jsonResponse(true, 0, 'Estado actual', ['game' => self::publicState($g)]);
+            case 'state': {
+                if (!isset($_SESSION['game'])) self::jsonResponse(false, 409, 'No hay partida cargada (usa init o load)');
+                $g = &$_SESSION['game'];
+                self::jsonResponse(true, 0, 'OK', ['game' => self::publicState($g)]);
                 break;
+            }
 
-            case 'place':
-                // Espera JSON en body o params
-                $input = json_decode(file_get_contents('php://input'), true);
-                if (!is_array($input)) $input = $_REQUEST;
-                $player  = isset($input['player']) ? intval($input['player']) : null;
-                $recinto = $input['recinto'] ?? null;
+            case 'place': {
+                if (!isset($_SESSION['game'])) self::jsonResponse(false, 409, 'No hay partida cargada (usa init o load)');
+                $g = &$_SESSION['game'];
 
-                // Soporte para forma nueva (dino_id) y forma legacy (species)
-                $dinoId  = $input['dino_id'] ?? null;
-                $species = $input['species'] ?? null;
+                $player = isset($_REQUEST['player']) ? (int)$_REQUEST['player'] : 0;
+                $dinoId = $_REQUEST['dino_id'] ?? null;
+                $speciesLegacy = $_REQUEST['species'] ?? null;
+                $recinto = $_REQUEST['recinto'] ?? null;
 
-                self::handlePlace($g, $player, $dinoId, $species, $recinto);
+                $turnBefore = $g['current_player'] ?? $player;
+
+                $placeData = self::handlePlace($g, $player, $dinoId, $speciesLegacy, $recinto);
+
+                $calc = self::calculateWinner($g);
+                $placeData['scores'] = [
+                    1 => $calc['players'][1]['total'] ?? 0,
+                    2 => $calc['players'][2]['total'] ?? 0,
+                ];
+
+                $userId = self::currentUserId();
+                $gameId = isset($_REQUEST['game_id']) ? (int)$_REQUEST['game_id'] : 0;
+                if ($gameId > 0) {
+                    try {
+                        self::storage()->saveState($gameId, $g);
+                        if ($userId > 0 && $recinto !== null) {
+                            $jpId = self::storage()->getJugadorPartidaId($gameId, $userId);
+                            if ($jpId) {
+                                $speciesPlaced = end($g['boards'][$player][$recinto]) ?: null;
+                                $ronda = (int)($g['overall_round'] ?? 1);
+                                self::storage()->recordPlacement($jpId, $recinto, (string)$speciesPlaced, $ronda, (int)$turnBefore);
+                            }
+                        }
+                    } catch (Throwable $e) {
+                        $placeData['persist_warning'] = 'No se pudo guardar el estado: ' . $e->getMessage();
+                    }
+                }
+
+                $placeData['game_id'] = $gameId ?: null;
+                self::jsonResponse(true, 0, 'Dinosaurio colocado', $placeData);
                 break;
+            }
 
-            case 'winner':
-                if (!$g['finished']) self::jsonResponse(false, 1001, 'La partida no ha finalizado aún');
+            case 'winner': {
+                if (!isset($_SESSION['game'])) self::jsonResponse(false, 409, 'No hay partida cargada (usa init o load)');
+                $g = &$_SESSION['game'];
                 $res = self::calculateWinner($g);
                 self::jsonResponse(true, 0, 'Resultado final', $res);
                 break;
+            }
 
             default:
-                self::jsonResponse(false, 400, 'Acción no especificada o desconocida. Uso: action=init|get_hand|state|place|winner');
+                self::jsonResponse(false, 400, 'Acción desconocida. Uso: action=init|get_hand|state|place|winner|load');
         }
     }
 
-    // Manejo de la acción de colocar (regla: tras colocar 1, devolver resto y repartir a 6)
-    private static function handlePlace(&$g, $player, $dinoId, $speciesLegacy, $recinto) {
-        // Validaciones básicas
-        if ($g['finished']) self::jsonResponse(false, 1002, 'La partida ya ha finalizado');
+    private static function handlePlace(array &$g, int $player, $dinoId, $speciesLegacy, $recinto): array {
         if (!in_array($player, [1,2], true)) self::jsonResponse(false, 1003, 'Jugador inválido');
-
-        // Si deseas forzar turnos alternados, mantén esta validación:
+        if ($g['finished']) self::jsonResponse(false, 1002, 'La partida ya ha finalizado');
         if ($player !== $g['current_player']) self::jsonResponse(false, 1004, 'No es tu turno');
+        if ($recinto !== null && !in_array($recinto, self::$RECINTOS, true)) self::jsonResponse(false, 1007, 'Recinto inválido');
 
-        // Validación de recinto si viene informado (puede omitirse por ahora)
-        if ($recinto !== null && !in_array($recinto, self::$RECINTOS, true)) {
-            self::jsonResponse(false, 1007, 'Recinto inválido');
-        }
-
-        // Buscar el dino en la mano del jugador
         $idx = -1;
-        $placedDino = null;
-
         if ($dinoId !== null) {
             $idx = self::findDinoIndexInHand($g['hands'][$player], $dinoId);
         } elseif ($speciesLegacy !== null) {
-            // Compatibilidad: buscar por tipo (color) en la mano actual
             foreach ($g['hands'][$player] as $i => $d) {
                 $tipo = is_object($d) ? ($d->tipo ?? null) : (is_array($d) ? ($d['tipo'] ?? null) : null);
                 if ($tipo === $speciesLegacy) { $idx = $i; break; }
@@ -234,44 +290,26 @@ class JuegoControlador {
 
         if ($idx < 0) self::jsonResponse(false, 1008, 'El dinosaurio elegido no está en tu mano');
 
-        // Extraer el dino colocado
         $placedDino = array_splice($g['hands'][$player], $idx, 1)[0];
         $placedTipo = is_object($placedDino) ? ($placedDino->tipo ?? null) : (is_array($placedDino) ? ($placedDino['tipo'] ?? null) : null);
 
-        // Registrar en tablero si se informó recinto
         if ($recinto !== null) {
+            $can = self::canPlaceInRecinto($recinto, (string)$placedTipo, $g['boards'][$player]);
+            if ($can !== true) self::jsonResponse(false, 1010, is_string($can) ? $can : 'Movimiento no permitido en este recinto');
             $g['boards'][$player][$recinto][] = $placedTipo;
         }
 
-        // Marcar colocación
         $g['placed_count'][$player] = ($g['placed_count'][$player] ?? 0) + 1;
+        $g['placed'] = ($g['placed'] ?? 0) + 1;
 
-        // Devolver el resto de la mano al saco
-        foreach ($g['hands'][$player] as $d) $g['sack'][] = $d;
-        // Vaciar mano
-        $g['hands'][$player] = [];
+        foreach ($g['hands'][$player] as $d) { $g['sack'][] = $d; }
+        $g['hands'][$player] = self::draw($g['sack'], self::HAND_SIZE);
 
-        // Barajar saco
-        if (count($g['sack']) > 1) shuffle($g['sack']);
+        $g['current_player'] = (3 - $player);
 
-        // Repartir hasta tener 6 nuevamente si aún no llegó a 12 colocaciones
-        if (($g['placed_count'][$player] ?? 0) < 12) {
-            $g['hands'][$player] = self::draw($g['sack'], self::HAND_SIZE);
-        }
+        $g['finished'] = ($g['placed_count'][1] >= self::HAND_SIZE && $g['placed_count'][2] >= self::HAND_SIZE);
 
-        // ¿Fin de partida?
-        if (($g['placed_count'][1] ?? 0) >= 12 && ($g['placed_count'][2] ?? 0) >= 12) {
-            $g['finished'] = true;
-        }
-
-        // Cambiar turno
-        if (!$g['finished']) {
-            $g['current_player'] = 3 - $player;
-        }
-
-        $_SESSION['game'] = $g;
-
-        self::jsonResponse(true, 0, 'Dinosaurio colocado', [
+        return [
             'player' => $player,
             'placed_dino' => self::pubDino($placedDino),
             'new_hand' => array_map([self::class, 'pubDino'], $g['hands'][$player]),
@@ -279,55 +317,43 @@ class JuegoControlador {
             'sack_remaining' => count($g['sack']),
             'finished' => $g['finished'],
             'game' => self::publicState($g),
-        ]);
+        ];
     }
 
-    // Validaciones de reglas por recinto. Devuelve true si puede colocar, o string con razón si no.
-    // Nota: Usará el 'tipo' como "especie" lógica (coincide con colores actuales). Se conserva para uso futuro.
-    private static function canPlaceInRecinto($recinto, $species, $board) {
-        $current = $board[$recinto];
+    private static function canPlaceInRecinto(string $recinto, string $species, array $board) {
+        $current = $board[$recinto] ?? [];
+
         switch ($recinto) {
             case 'El Bosque de la Semejanza':
-                // Solo puede albergar dinosaurios de la misma especie
                 if (empty($current)) return true;
                 foreach ($current as $d) if ($d !== $species) return 'El Bosque de la Semejanza solo admite dinos de la misma especie que los ya alojados';
                 return true;
-
             case 'El Prado de la Diferencia':
-                // Solo especies distintas
                 foreach ($current as $d) if ($d === $species) return 'El Prado de la Diferencia no admite repeticiones de especie';
                 return true;
-
             case 'La Pradera del Amor':
-                // Acepta todas las especies, no hay restricción
                 return true;
-
             case 'El Trío Frondoso':
-                // Hasta 3 dinosaurios
                 if (count($current) >= 3) return 'El Trío Frondoso ya está lleno (máx 3)';
                 return true;
-
             case 'El Rey de la Selva':
-                // Solo 1 dinosaurio
                 if (count($current) >= 1) return 'El Rey de la Selva solo puede albergar 1 dinosaurio';
                 return true;
-
             case 'La Isla Solitaria':
                 if (count($current) >= 1) return 'La Isla Solitaria solo puede albergar 1 dinosaurio';
                 return true;
-
             case 'El Rio':
-                // Sin restricciones
                 return true;
-
             default:
                 return 'Recinto desconocido';
         }
     }
 
-    // Calcula el ganador y devuelve detalle por jugador y por recinto
-    private static function calculateWinner($g) {
+    private static function calculateWinner(array $g): array {
         $results = [1=>['total'=>0,'by_recinct'=>[]], 2=>['total'=>0,'by_recinct'=>[]]];
+
+        $bosqueSemejanza = [0,2,4,8,12,18,24]; // por cantidad
+        $pradoDiferencia = [0,1,3,6,10,15,21];
 
         foreach ([1,2] as $p) {
             $total = 0;
@@ -337,29 +363,34 @@ class JuegoControlador {
 
                 switch ($r) {
                     case 'El Bosque de la Semejanza':
-                        // cada dino vale 1, solo debió permitirse misma especie
-                        $score = count($dinos) * 1;
+                        $n = count($dinos);
+                        $score = $bosqueSemejanza[$n] ?? 0;
                         break;
+
                     case 'El Prado de la Diferencia':
-                        $score = count($dinos) * 1;
+                        $n = count($dinos);
+                        $score = $pradoDiferencia[$n] ?? 0;
                         break;
+
                     case 'La Pradera del Amor':
-                        // 5 puntos por cada pareja de la misma especie
                         $counts = [];
                         foreach ($dinos as $d) $counts[$d] = ($counts[$d] ?? 0) + 1;
-                        foreach ($counts as $c) $score += intdiv($c, 2) * 5;
+                        foreach ($counts as $c) $score += intdiv($c, 2) * 3;
                         break;
+
                     case 'El Trío Frondoso':
-                        if (count($dinos) === 3) $score = 7;
+                        $score = (count($dinos) === 3) ? 7 : 0;
                         break;
+
                     case 'El Rey de la Selva':
-                        if (count($dinos) === 1) {
+                        if (!empty($dinos)) {
                             $species = $dinos[0];
-                            // contar especies del rival en todo su tablero
+                            $myCount  = self::countSpeciesInBoard($g['boards'][$p], $species);
                             $oppCount = self::countSpeciesInBoard($g['boards'][3 - $p], $species);
-                            if ($oppCount < 1) $score = 7; // rival tiene menos dinos de esa especie
+                            if ($myCount > $oppCount) $score = 7;
                         }
                         break;
+
                     case 'La Isla Solitaria':
                         if (count($dinos) === 1) {
                             $species = $dinos[0];
@@ -367,12 +398,13 @@ class JuegoControlador {
                             if ($myCount === 1) $score = 7;
                         }
                         break;
+
                     case 'El Rio':
                         $score = count($dinos) * 1;
                         break;
                 }
 
-                // Bono opcional: si el recinto tiene al menos 1 T-Rex, suma +1 extra
+                // Bonificación T‑Rex
                 $hasTRex = in_array('T-Rex', $dinos, true);
                 if ($hasTRex) $score += 1;
 
@@ -383,14 +415,9 @@ class JuegoControlador {
             $results[$p]['player'] = $g['players'][$p] ?? ('Jugador ' . $p);
         }
 
-        // Determinar ganador (si empate, devolver ambos)
-        if ($results[1]['total'] > $results[2]['total']) {
-            $winner = $results[1];
-        } elseif ($results[2]['total'] > $results[1]['total']) {
-            $winner = $results[2];
-        } else {
-            $winner = null; // empate
-        }
+        $winner = null;
+        if ($results[1]['total'] > $results[2]['total']) $winner = $results[1];
+        elseif ($results[2]['total'] > $results[1]['total']) $winner = $results[2];
 
         return [
             'players' => $results,
@@ -399,15 +426,11 @@ class JuegoControlador {
         ];
     }
 
-    private static function countSpeciesInBoard($board, $species) {
+    private static function countSpeciesInBoard(array $board, string $species): int {
         $c = 0;
-        foreach ($board as $r => $dinos) {
-            foreach ($dinos as $d) if ($d === $species) $c++;
-        }
+        foreach ($board as $dinos) foreach ($dinos as $d) if ($d === $species) $c++;
         return $c;
     }
 }
 
-if (php_sapi_name() !== 'cli') {
-    JuegoControlador::handleRequest();
-}
+// No autoejecutar aquí: jugar.php llama a handleRequest cuando viene ?action=...

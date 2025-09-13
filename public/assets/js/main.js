@@ -7,142 +7,153 @@ Verde: 4
 Azul: 5
 */
 
+/* Config (seguimiento local) */
 let dinosaurios = ['rojo','cyan','naranja','rosa','verde','azul'];
 let seleccion = null;
 let totalColocados = 0;
 let totalPorColor = [0,0,0,0,0,0];
-
 let campoUnoColor, campoDosColor, campoTresColor, campoCuatroColor, campoCincoColor, campoSeisColor, campoSieteColor; 
 let [campoUnoCantidad, campoDosCantidad, campoTresCantidad, campoCuatroCantidad, campoCincoCantidad, campoSeisCantidad, campoSieteCantidad] = [0, 0, 0, 0, 0, 0, 0];
-
 let campoCincoUsados = [false,false,false,false,false,false];
-
-// mantenemos tu contador de colores por sección, pero lo usamos sólo para el score
 let campoColores = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
-
 let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0];
+const RECINTO_MAP = {
+  1: "El Bosque de la Semejanza",
+  2: "El Rio",
+  3: "El Trío Frondoso",
+  4: "El Rey de la Selva",
+  5: "El Prado de la Diferencia",
+  6: "La Pradera del Amor",
+  7: "La Isla Solitaria",
+};
 
-/* ============================================================
-   Bases dinámicas (evita rutas rotas)
-   - IMG_BASE: resuelve a /public/assets/imgs/ en cualquier entorno
-   - API_URL: usa la URL actual (?page=jugar) para llamar al backend
-   ============================================================ */
+/* Bases */
 const IMG_BASE = (() => {
-  try {
-    // main.js está en /assets/js/main.js -> ../imgs/ => /assets/imgs/
-    return new URL('../imgs/', document.currentScript.src).href;
-  } catch {
-    // Fallback por si currentScript no existe
-    return '/assets/imgs/';
-  }
+  try { return new URL('../imgs/', document.currentScript.src).href; }
+  catch { return '/assets/imgs/'; }
 })();
-
-// Apunta a la URL actual (por ejemplo /.../public/?page=jugar)
 const API_URL = new URL(window.location.href);
 
-function terminarPartida(){
-    if (totalColocados == 6){
-        const puntajeFinal = scoreUno + scoreDos + scoreTres + scoreCuatro + scoreCinco + scoreSeis + scoreSiete;
-        mostrarMensaje(`El puntaje final es de: ${puntajeFinal}`);
-    }
-}
+/* Multi-jugador/persistencia */
+const USER_ID = (typeof window !== 'undefined' && window.GAME_USER_ID) ? window.GAME_USER_ID : 0;
+const STORAGE_KEY = 'drafto_game_id';
+let gameId = Number(localStorage.getItem(STORAGE_KEY) || 0);
 
+/* Contador (seguimiento local + marcador online) */
+function terminarPartida(){
+  if (totalColocados == 6){
+    const puntajeFinal = scoreUno + scoreDos + scoreTres + scoreCuatro + scoreCinco + scoreSeis + scoreSiete;
+    mostrarMensaje(`El puntaje final es de: ${puntajeFinal}`);
+  }
+}
 function mostrarMensaje(texto) {
   const cont = document.getElementById('mensaje');
   if (cont) cont.textContent = texto;
 }
+/* Marcador desde backend (si viene en respuestas) */
+function setScoresFrom(data) {
+  const s1 = document.getElementById('score-1');
+  const s2 = document.getElementById('score-2');
+  if (!s1 || !s2) return;
+  if (data?.scores) {
+    if (data.scores[1] != null) s1.textContent = String(data.scores[1]);
+    if (data.scores[2] != null) s2.textContent = String(data.scores[2]);
+  } else if (data?.game?.placed_count) {
+    if (data.game.placed_count[1] != null) s1.textContent = String(data.game.placed_count[1]);
+    if (data.game.placed_count[2] != null) s2.textContent = String(data.game.placed_count[2]);
+  } else if (data?.placed_count) {
+    if (data.placed_count[1] != null) s1.textContent = String(data.placed_count[1]);
+    if (data.placed_count[2] != null) s2.textContent = String(data.placed_count[2]);
+  }
+}
 
+/* Campos (seguimiento local) */
 function selectUno() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    if (campoUnoColor === undefined) campoUnoColor = seleccion;
-    const puntos = [0,2,4,8,12,18,24];
-    if (seleccion !== campoUnoColor) return mostrarMensaje('No se acepta');
-    if (campoUnoCantidad >= 6) return mostrarMensaje('Máximo 6 dinosaurios');
-    campoUnoCantidad++;
-    campoColores[1].push(seleccion);
-    totalPorColor[seleccion]++;
-    scoreUno = puntos[campoUnoCantidad];
-    totalColocados++;
-    actualizarMostrar(1, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  if (campoUnoColor === undefined) campoUnoColor = seleccion;
+  const puntos = [0,2,4,8,12,18,24];
+  if (seleccion !== campoUnoColor) return mostrarMensaje('No se acepta');
+  if (campoUnoCantidad >= 6) return mostrarMensaje('Máximo 6 dinosaurios');
+  campoUnoCantidad++;
+  campoColores[1].push(seleccion);
+  totalPorColor[seleccion]++;
+  scoreUno = puntos[campoUnoCantidad];
+  totalColocados++;
+  actualizarMostrar(1, seleccion);
+  terminarPartida();
 }
-
 function selectDos() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    campoDosCantidad++;
-    campoColores[2].push(seleccion);
-    totalPorColor[seleccion]++;
-    scoreDos = campoDosCantidad;
-    totalColocados++;
-    actualizarMostrar(2, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  campoDosCantidad++;
+  campoColores[2].push(seleccion);
+  totalPorColor[seleccion]++;
+  scoreDos = campoDosCantidad;
+  totalColocados++;
+  actualizarMostrar(2, seleccion);
+  terminarPartida();
 }
-
 function selectTres() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    if (campoTresCantidad >= 1) return mostrarMensaje('Solo se permite ingresar un dinosaurio');
-    campoTresColor = seleccion;
-    campoTresCantidad++;
-    campoColores[3].push(seleccion);
-    totalPorColor[seleccion]++;
-    let max = 0;
-    for (let i = 0; i < totalPorColor.length; i++) if (totalPorColor[i] > max) max = totalPorColor[i];
-    scoreTres = (totalPorColor[campoTresColor] === max) ? 7 : 0;
-    totalColocados++;
-    actualizarMostrar(3, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  if (campoTresCantidad >= 1) return mostrarMensaje('Solo se permite ingresar un dinosaurio');
+  campoTresColor = seleccion;
+  campoTresCantidad++;
+  campoColores[3].push(seleccion);
+  totalPorColor[seleccion]++;
+  let max = 0;
+  for (let i = 0; i < totalPorColor.length; i++) if (totalPorColor[i] > max) max = totalPorColor[i];
+  scoreTres = (totalPorColor[campoTresColor] === max) ? 7 : 0;
+  totalColocados++;
+  actualizarMostrar(3, seleccion);
+  terminarPartida();
 }
-
 function selectCuatro() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    campoCuatroCantidad++;
-    campoColores[4].push(seleccion);
-    totalPorColor[seleccion]++;
-    scoreCuatro = (campoCuatroCantidad === 3) ? 7 : 0;
-    totalColocados++;
-    actualizarMostrar(4, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  campoCuatroCantidad++;
+  campoColores[4].push(seleccion);
+  totalPorColor[seleccion]++;
+  scoreCuatro = (campoCuatroCantidad === 3) ? 7 : 0;
+  totalColocados++;
+  actualizarMostrar(4, seleccion);
+  terminarPartida();
 }
-
 function selectCinco() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    if (campoCincoUsados[seleccion]) return mostrarMensaje('No puedes tener 2 dinosaurios del mismo color');
-    campoCincoUsados[seleccion] = true;
-    campoCincoCantidad++;
-    campoColores[5].push(seleccion);
-    totalPorColor[seleccion]++;
-    const puntos5 = [0,1,3,6,10,15,21];
-    scoreCinco = puntos5[campoCincoCantidad];
-    totalColocados++;
-    actualizarMostrar(5, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  if (campoCincoUsados[seleccion]) return mostrarMensaje('No puedes tener 2 dinosaurios del mismo color');
+  campoCincoUsados[seleccion] = true;
+  campoCincoCantidad++;
+  campoColores[5].push(seleccion);
+  totalPorColor[seleccion]++;
+  const puntos5 = [0,1,3,6,10,15,21];
+  scoreCinco = puntos5[campoCincoCantidad];
+  totalColocados++;
+  actualizarMostrar(5, seleccion);
+  terminarPartida();
 }
-
 function selectSeis() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    campoSeisCantidad++;
-    campoColores[6].push(seleccion);
-    totalPorColor[seleccion]++;
-    let pares = 0;
-    for (let i = 0; i < totalPorColor.length; i++) pares += Math.floor(totalPorColor[i]/2);
-    scoreSeis = pares * 5;
-    totalColocados++;
-    actualizarMostrar(6, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  campoSeisCantidad++;
+  campoColores[6].push(seleccion);
+  totalPorColor[seleccion]++;
+  let pares = 0;
+  for (let i = 0; i < totalPorColor.length; i++) pares += Math.floor(totalPorColor[i]/2);
+  scoreSeis = pares * 5;
+  totalColocados++;
+  actualizarMostrar(6, seleccion);
+  terminarPartida();
 }
-
 function selectSiete() {
-    if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
-    if (campoSieteCantidad >= 1) return mostrarMensaje('Solo se permite un dinosaurio aquí');
-    campoSieteCantidad++;
-    campoColores[7].push(seleccion);
-    totalPorColor[seleccion]++;
-    scoreSiete = 7;
-    totalColocados++;
-    actualizarMostrar(7, seleccion);
-    terminarPartida();
+  if (seleccion === null) return mostrarMensaje('Selecciona un dinosaurio');
+  if (campoSieteCantidad >= 1) return mostrarMensaje('Solo se permite un dinosaurio aquí');
+  campoSieteCantidad++;
+  campoColores[7].push(seleccion);
+  totalPorColor[seleccion]++;
+  scoreSiete = 7;
+  totalColocados++;
+  actualizarMostrar(7, seleccion);
+  terminarPartida();
 }
 
+/* Selección (seguimiento local) */
 function slctRojo() { seleccion = 0; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-rojo'); if (el) el.classList.add('cambio'); }
 function slctCyan() { seleccion = 1; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-cyan'); if (el) el.classList.add('cambio'); }
 function slctNaranja() { seleccion = 2; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-naranja'); if (el) el.classList.add('cambio'); }
@@ -150,6 +161,7 @@ function slctRosa() { seleccion = 3; document.querySelectorAll('.icono').forEach
 function slctVerde() { seleccion = 4; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-verde'); if (el) el.classList.add('cambio'); }
 function slctAzul() { seleccion = 5; document.querySelectorAll('.icono').forEach(i=>i.classList.remove('cambio')); const el = document.getElementById('ico-azul'); if (el) el.classList.add('cambio'); }
 
+/* UI (seguimiento local) */
 function actualizarMostrar(seccion, color) {
   const btn = document.getElementById(`btn${seccion}`);
   if (!btn) return;
@@ -159,8 +171,10 @@ function actualizarMostrar(seccion, color) {
   btn.appendChild(img);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  let currentPlayer = 1; // empezamos por el jugador 1
+/* Inicio + Multi-jugador */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Estado de UI (multijugador)
+  let currentPlayer = 1;
   let isSwitching = false;
 
   function showPlayer(p) {
@@ -170,35 +184,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     currentPlayer = p;
   }
-
-  // Cambiar de jugador con una animación simple (slide + fade)
+  function normPlayer(n, fallback) {
+    const v = Number(n);
+    return v === 1 || v === 2 ? v : (fallback === 1 ? 2 : 1);
+  }
   function switchPlayerAnimated(nextPlayer) {
+    nextPlayer = normPlayer(nextPlayer, currentPlayer);
+    if (nextPlayer === currentPlayer) { showPlayer(currentPlayer); return; }
     const currentEl = document.querySelector(`.contenedor-juego[data-player="${currentPlayer}"]`);
     const nextEl = document.querySelector(`.contenedor-juego[data-player="${nextPlayer}"]`);
     if (!currentEl || !nextEl) { showPlayer(nextPlayer); return; }
-
-    // animar salida del actual
-    currentEl.classList.add('anim-out');
-    setTimeout(() => {
-      currentEl.classList.remove('anim-out');
-      currentEl.classList.add('hidden');
-
-      // preparar y animar entrada del siguiente
-      nextEl.classList.add('anim-in');
-      nextEl.classList.remove('hidden');
-      void nextEl.offsetWidth; // forzar reflow para que transicione
-      nextEl.classList.remove('anim-in');
-
-      currentPlayer = nextPlayer;
-    }, 320); // debe coincidir con el CSS (~320ms)
+    nextEl.classList.remove('hidden');
+    nextEl.classList.add('anim-in');
+    requestAnimationFrame(() => {
+      currentEl.classList.add('anim-out');
+      setTimeout(() => {
+        currentEl.classList.remove('anim-out');
+        currentEl.classList.add('hidden');
+        nextEl.classList.remove('anim-in');
+        currentPlayer = nextPlayer;
+      }, 320);
+    });
   }
 
+  // API con user_id + game_id
   async function api(action, params = {}) {
-    const isGet = action === 'init' || action === 'get_hand' || action === 'state';
+    const isGet = action === 'init' || action === 'get_hand' || action === 'state' || action === 'load';
+    const base = { action, user_id: USER_ID };
+    if (gameId) base.game_id = gameId;
+
     if (isGet) {
-      const url = new URL(API_URL); // clonar URL actual (?page=jugar)
-      url.searchParams.set('action', action);
-      Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+      const url = new URL(API_URL);
+      Object.entries({ ...base, ...params }).forEach(([k, v]) => url.searchParams.set(k, v));
       const res = await fetch(url.toString(), {
         method: 'GET',
         headers: { 'Accept': 'application/json' },
@@ -207,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       return res.json();
     } else {
-      const body = new URLSearchParams({ action, ...params });
+      const body = new URLSearchParams({ ...base, ...params });
       const res = await fetch(API_URL.toString(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' },
@@ -219,10 +236,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  let nextDragId = 1;
+  // Drag & Drop
   function makeDraggable(img) {
     img.setAttribute('draggable', 'true');
-    if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (nextDragId++);
+    if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (Date.now() + Math.random()).toString(36);
     img.addEventListener('dragstart', (e) => {
       const payload = JSON.stringify({
         src: e.currentTarget.src,
@@ -246,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
       img.alt = d.tipo || 'dino';
       img.className = 'mini-dino';
       img.dataset.tipo = d.tipo || '';
-      img.dataset.gameId = d.id; 
+      img.dataset.gameId = d.id;
       makeDraggable(img);
       cont.appendChild(img);
     });
@@ -273,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.top  = `${z.y}%`;
       el.style.width  = `${z.w}%`;
       el.style.height = `${z.h}%`;
-      el.dataset.zoneId = z.id;
+      el.dataset.zoneId = String(z.id);
       el.dataset.player = String(player);
 
       const slotsWrap = document.createElement('div');
@@ -322,9 +339,15 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
-        const zoneId = el.dataset.zoneId;
+        const zoneId = Number(el.dataset.zoneId);
+        const recintoName = RECINTO_MAP[zoneId];
+        if (!recintoName) {
+          alert('Recinto inválido');
+          return;
+        }
+
         let freeSlot;
-        if (zoneId === '2') {
+        if (String(zoneId) === '2') {
           freeSlot = Array.from(el.querySelectorAll('.slot')).reverse().find(s => !s.classList.contains('filled'));
         } else {
           freeSlot = el.querySelector('.slot:not(.filled)');
@@ -332,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!freeSlot) return;
 
         try {
-          const r = await api('place', { player: currentPlayer, dino_id: dinoId });
+          const r = await api('place', { player: currentPlayer, dino_id: dinoId, recinto: recintoName });
           if (!r?.success) {
             alert(r?.message || 'Error al colocar el dinosaurio');
             return;
@@ -345,27 +368,37 @@ document.addEventListener('DOMContentLoaded', () => {
             img.alt = placed.tipo || 'dino';
             img.className = 'dino';
             img.draggable = false;
-
             freeSlot.classList.add('filled');
             freeSlot.appendChild(img);
           }
 
+          // Actualizar bandeja y marcador
           renderBandejaFor(currentPlayer, r.data?.new_hand || []);
+          setScoresFrom(r.data);
 
-          const nextPlayer = (r?.data?.game?.current_player != null)
-            ? Number(r.data.game.current_player)
-            : (currentPlayer === 1 ? 2 : 1);
+          // Guardar game_id si vino
+          if (r.data?.game_id && !gameId) {
+            gameId = Number(r.data.game_id);
+            localStorage.setItem(STORAGE_KEY, String(gameId));
+          }
 
+          // Traer mano del siguiente jugador
+          const nextPlayer = normPlayer(r?.data?.game?.current_player, currentPlayer);
           try {
             const handNext = await api('get_hand', { player: nextPlayer });
-            if (handNext?.success) renderBandejaFor(nextPlayer, handNext.data?.hand || []);
+            if (handNext?.success) {
+              renderBandejaFor(nextPlayer, handNext.data?.hand || []);
+              setScoresFrom(handNext.data);
+            }
           } catch {}
 
+          // Animar cambio de jugador
           isSwitching = true;
           setTimeout(() => {
-            switchPlayerAnimated(nextPlayer);
+            const finalNext = normPlayer(r?.data?.game?.current_player, currentPlayer);
+            showPlayer(finalNext);
             isSwitching = false;
-          }, 400); 
+          }, 350);
 
           if (r.data?.finished) alert('Partida finalizada');
         } catch (err) {
@@ -378,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Render inicial de zonas
   document.querySelectorAll('.contenedor-juego').forEach(boardEl => {
     const player = Number(boardEl.dataset.player || '1');
     const tablero = boardEl.querySelector('.tablero');
@@ -388,23 +422,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const pantalla = document.getElementById('pantalla-inicio');
   const err = document.getElementById('init-error');
 
+  // Intentar cargar partida previa si existe
+  if (gameId && USER_ID) {
+    try {
+      const r = await api('load'); // game_id y user_id van dentro de api()
+      if (r?.success) {
+        if (pantalla) pantalla.classList.add('hidden');
+        showPlayer(1);
+        setScoresFrom(r.data); // marcador desde estado
+        // Cargar manos actuales
+        for (const p of [1, 2]) {
+          const handRes = await api('get_hand', { player: p });
+          if (handRes?.success) {
+            renderBandejaFor(p, handRes.data?.hand || []);
+            setScoresFrom(handRes.data);
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('No se pudo cargar partida previa:', e);
+    }
+  }
+
+  // Botón iniciar (crear nueva partida)
   if (btn) {
     btn.addEventListener('click', async () => {
       if (err) err.classList.add('hidden');
       btn.disabled = true;
       btn.textContent = 'Iniciando...';
-
       try {
         const initRes = await api('init');
         if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
 
+        // Guardar game_id
+        const newId = Number(initRes.data?.game_id || 0);
+        if (newId) {
+          gameId = newId;
+          localStorage.setItem(STORAGE_KEY, String(gameId));
+        }
+
         if (pantalla) pantalla.classList.add('hidden');
         showPlayer(1);
 
+        // Cargar manos
         for (const p of [1, 2]) {
           const handRes = await api('get_hand', { player: p });
           if (!handRes?.success) throw new Error(handRes?.message || `Error al obtener mano del jugador ${p}`);
           renderBandejaFor(p, handRes.data?.hand || []);
+          setScoresFrom(handRes.data);
         }
       } catch (e) {
         console.error(e);
