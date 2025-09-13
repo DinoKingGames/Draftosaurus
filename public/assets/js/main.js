@@ -17,6 +17,7 @@ let [campoUnoCantidad, campoDosCantidad, campoTresCantidad, campoCuatroCantidad,
 let campoCincoUsados = [false,false,false,false,false,false];
 let campoColores = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
 let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0];
+
 const RECINTO_MAP = {
   1: "El Bosque de la Semejanza",
   2: "El Rio",
@@ -25,6 +26,20 @@ const RECINTO_MAP = {
   5: "El Prado de la Diferencia",
   6: "La Pradera del Amor",
   7: "La Isla Solitaria",
+};
+const NAME_TO_ZONE = Object.fromEntries(Object.entries(RECINTO_MAP).map(([id, name]) => [name, Number(id)]));
+
+/* Mapeo especie -> imagen (relleno dinámico desde las manos; con alias de respaldo) */
+const SPECIES_IMG = Object.create(null);
+const SPECIES_ALIAS = {
+  "Rosado": "rosa",
+  "Rosa": "rosa",
+  "Cyan": "cyan",
+  "Azul": "azul",
+  "Rojo": "rojo",
+  "Naranja": "naranja",
+  "Verde": "verde",
+  "T-Rex": "trex" // por si aparece; debe existir /imgs/minis/trex.png
 };
 
 /* Bases */
@@ -171,6 +186,70 @@ function actualizarMostrar(seccion, color) {
   btn.appendChild(img);
 }
 
+/* Helpers de imágenes */
+function imageForTipo(tipo) {
+  if (!tipo) return `${IMG_BASE}minis/placeholder.png`;
+  if (SPECIES_IMG[tipo]) return SPECIES_IMG[tipo];
+  const alias = SPECIES_ALIAS[tipo] || tipo;
+  return `${IMG_BASE}minis/${String(alias).toLowerCase()}.png`;
+}
+function updateSpeciesMapFromHand(hand) {
+  (hand || []).forEach(d => {
+    if (d?.tipo && d?.imagen && !SPECIES_IMG[d.tipo]) {
+      SPECIES_IMG[d.tipo] = d.imagen;
+    }
+  });
+}
+
+/* Render/hidratación de tablero desde estado */
+function clearBoardSlotsForPlayer(player) {
+  const boardEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
+  if (!boardEl) return;
+  boardEl.querySelectorAll('.slot').forEach(s => {
+    s.classList.remove('filled');
+    while (s.firstChild) s.removeChild(s.firstChild);
+  });
+}
+function hydrateFromState(game) {
+  if (!game?.boards) return;
+  // Limpiar
+  clearBoardSlotsForPlayer(1);
+  clearBoardSlotsForPlayer(2);
+
+  for (const p of [1, 2]) {
+    const boards = game.boards?.[p] || {};
+    const playerEl = document.querySelector(`.contenedor-juego[data-player="${p}"]`);
+    if (!playerEl) continue;
+
+    for (const [recintoName, dinos] of Object.entries(boards)) {
+      const zoneId = NAME_TO_ZONE[recintoName];
+      if (!zoneId) continue;
+
+      const zoneEl = playerEl.querySelector(`.dropzone[data-zone-id="${String(zoneId)}"]`);
+      if (!zoneEl) continue;
+
+      // slots disponibles en la zona
+      const slots = Array.from(zoneEl.querySelectorAll('.slot'));
+      // el Río (id 2) se llena de abajo hacia arriba (igual que en drop)
+      const slotIterator = (zoneId === 2) ? [...slots].reverse() : slots;
+
+      let i = 0;
+      for (const species of (dinos || [])) {
+        const targetSlot = slotIterator.find(s => !s.classList.contains('filled'));
+        if (!targetSlot) break;
+        const img = document.createElement('img');
+        img.src = imageForTipo(species);
+        img.alt = species || 'dino';
+        img.className = 'dino';
+        img.draggable = false;
+        targetSlot.classList.add('filled');
+        targetSlot.appendChild(img);
+        i++;
+      }
+    }
+  }
+}
+
 /* Inicio + Multi-jugador */
 document.addEventListener('DOMContentLoaded', async () => {
   // Estado de UI (multijugador)
@@ -207,11 +286,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // API con user_id + game_id
-  async function api(action, params = {}) {
+  // API con user_id + game_id (opción para ignorar game_id)
+  async function api(action, params = {}, options = {}) {
+    const { ignoreGameId = false } = options;
     const isGet = action === 'init' || action === 'get_hand' || action === 'state' || action === 'load';
     const base = { action, user_id: USER_ID };
-    if (gameId) base.game_id = gameId;
+    if (gameId && !ignoreGameId) base.game_id = gameId;
 
     if (isGet) {
       const url = new URL(API_URL);
@@ -254,12 +334,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.querySelectorAll('.mini-dino').forEach(makeDraggable);
 
   function renderBandejaFor(player, hand) {
+    // actualiza el mapa de especies -> imagen con lo que trae el backend
+    updateSpeciesMapFromHand(hand);
+
     const cont = document.querySelector(`.contenedor-juego[data-player="${player}"] .bandeja .dinosaurios`);
     if (!cont) return;
     cont.innerHTML = '';
     (hand || []).forEach(d => {
       const img = document.createElement('img');
-      img.src = d.imagen;
+      img.src = d.imagen || imageForTipo(d.tipo);
       img.alt = d.tipo || 'dino';
       img.className = 'mini-dino';
       img.dataset.tipo = d.tipo || '';
@@ -364,7 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const placed = r.data?.placed_dino;
           if (placed) {
             const img = document.createElement('img');
-            img.src = placed.imagen;
+            img.src = placed.imagen || imageForTipo(placed.tipo);
             img.alt = placed.tipo || 'dino';
             img.className = 'dino';
             img.draggable = false;
@@ -418,66 +501,103 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderZonasFor(tablero, player);
   });
 
-  const btn = document.getElementById('btn-iniciar');
+  const btnReanudar = document.getElementById('btn-reanudar');
+  const btnNueva = document.getElementById('btn-nueva');
   const pantalla = document.getElementById('pantalla-inicio');
-  const err = document.getElementById('init-error');
+  const startErr = document.getElementById('start-error');
 
-  // Intentar cargar partida previa si existe
-  if (gameId && USER_ID) {
-    try {
-      const r = await api('load'); // game_id y user_id van dentro de api()
-      if (r?.success) {
-        if (pantalla) pantalla.classList.add('hidden');
-        showPlayer(1);
-        setScoresFrom(r.data); // marcador desde estado
-        // Cargar manos actuales
-        for (const p of [1, 2]) {
-          const handRes = await api('get_hand', { player: p });
-          if (handRes?.success) {
-            renderBandejaFor(p, handRes.data?.hand || []);
-            setScoresFrom(handRes.data);
-          }
-        }
+  function clearError() {
+    if (!startErr) return;
+    startErr.textContent = '';
+    startErr.classList.add('hidden');
+  }
+  function showError(msg) {
+    if (!startErr) return;
+    startErr.textContent = msg;
+    startErr.classList.remove('hidden');
+  }
+
+  async function cargarManosYScores() {
+    for (const p of [1, 2]) {
+      const handRes = await api('get_hand', { player: p });
+      if (handRes?.success) {
+        renderBandejaFor(p, handRes.data?.hand || []);
+        setScoresFrom(handRes.data);
       }
-    } catch (e) {
-      console.warn('No se pudo cargar partida previa:', e);
     }
   }
 
-  // Botón iniciar (crear nueva partida)
-  if (btn) {
-    btn.addEventListener('click', async () => {
-      if (err) err.classList.add('hidden');
-      btn.disabled = true;
-      btn.textContent = 'Iniciando...';
-      try {
-        const initRes = await api('init');
-        if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
-
-        // Guardar game_id
-        const newId = Number(initRes.data?.game_id || 0);
-        if (newId) {
-          gameId = newId;
-          localStorage.setItem(STORAGE_KEY, String(gameId));
-        }
-
-        if (pantalla) pantalla.classList.add('hidden');
-        showPlayer(1);
-
-        // Cargar manos
-        for (const p of [1, 2]) {
-          const handRes = await api('get_hand', { player: p });
-          if (!handRes?.success) throw new Error(handRes?.message || `Error al obtener mano del jugador ${p}`);
-          renderBandejaFor(p, handRes.data?.hand || []);
-          setScoresFrom(handRes.data);
-        }
-      } catch (e) {
-        console.error(e);
-        if (err) err.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Jugar';
+  async function resumeGame() {
+    clearError();
+    if (!USER_ID) {
+      showError('Debes iniciar sesión para reanudar una partida.');
+      return;
+    }
+    if (!gameId) {
+      showError('No hay una partida guardada para reanudar.');
+      return;
+    }
+    try {
+      const r = await api('load');
+      if (!r?.success) {
+        showError(r?.message || 'No se pudo reanudar. Podés iniciar una partida nueva.');
+        return;
       }
-    });
+      if (pantalla) pantalla.classList.add('hidden');
+      showPlayer(1);
+      setScoresFrom(r.data);
+
+      // Hidratar tablero desde el estado cargado
+      if (r.data?.game) hydrateFromState(r.data.game);
+
+      // Cargar manos (también alimenta el mapa de especies->imagen)
+      await cargarManosYScores();
+    } catch (e) {
+      console.warn('No se pudo cargar partida previa:', e);
+      showError('No se pudo reanudar. Probá con “Partida nueva”.');
+    }
   }
+
+  async function startNewGame() {
+    clearError();
+    // limpiar cualquier game_id previo para asegurarnos que iniciamos de cero
+    localStorage.removeItem(STORAGE_KEY);
+    gameId = 0;
+    if (btnNueva) { btnNueva.disabled = true; btnNueva.textContent = 'Iniciando...'; }
+    try {
+      const initRes = await api('init', {}, { ignoreGameId: true });
+      if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
+
+      const newId = Number(initRes.data?.game_id || 0);
+      if (newId) {
+        gameId = newId;
+        localStorage.setItem(STORAGE_KEY, String(gameId));
+      }
+
+      if (pantalla) pantalla.classList.add('hidden');
+      showPlayer(1);
+
+      // Tablero nuevo está vacío; manos para empezar
+      await cargarManosYScores();
+    } catch (e) {
+      console.error(e);
+      showError('No se pudo iniciar la partida. Intenta nuevamente.');
+    } finally {
+      if (btnNueva) { btnNueva.disabled = false; btnNueva.textContent = 'Partida nueva'; }
+    }
+  }
+
+  // Deshabilitar “Reanudar” si no hay user o game_id
+  if (btnReanudar) {
+    if (!USER_ID || !gameId) {
+      btnReanudar.disabled = true;
+      btnReanudar.title = !USER_ID ? 'Inicia sesión para reanudar' : 'No hay partida previa para reanudar';
+    }
+    btnReanudar.addEventListener('click', resumeGame);
+  }
+  if (btnNueva) {
+    btnNueva.addEventListener('click', startNewGame);
+  }
+
+  // Nota: Ya NO auto-reanudamos al cargar; el usuario elige.
 });

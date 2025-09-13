@@ -26,10 +26,16 @@ CREATE TABLE IF NOT EXISTS jugador_partida (
     partida_id INT NOT NULL,
     usuario_id INT NOT NULL,
     posicion INT NOT NULL,
-    FOREIGN KEY (partida_id) REFERENCES partida(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_player_game (partida_id, usuario_id)
-);
+
+    CONSTRAINT fk_jp_partida FOREIGN KEY (partida_id) REFERENCES partida(id) ON DELETE CASCADE,
+    CONSTRAINT fk_jp_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+
+    UNIQUE KEY unique_player_game (partida_id, usuario_id),
+    UNIQUE KEY unique_partida_posicion (partida_id, posicion),
+
+    INDEX idx_jp_partida (partida_id),
+    INDEX idx_jp_usuario (usuario_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS colocacion_dinosaurios (
     id INT AUTO_INCREMENT PRIMARY KEY,

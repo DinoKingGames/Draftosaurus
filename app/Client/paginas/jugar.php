@@ -33,9 +33,12 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
   <div class="inicio-card">
     <img src="<?= asset('imgs/dinoIntroFinal.gif') ?>" alt="" class="intro-dino" width="220" height="220">
     <h2 class="m0 text-center">Draftosaurus</h2>
-    <p class="text-center">¡Que empiece la aventura jurásica!</p>
-    <button id="btn-iniciar" class="btn btn-primary">Jugar</button>
-    <p id="init-error" class="init-error hidden">No se pudo iniciar la partida. Intenta nuevamente.</p>
+    <p class="text-center">¿Qué querés hacer?</p>
+    <div class="actions-row" style="display:flex; gap:12px; justify-content:center;">
+      <button id="btn-reanudar" class="btn btn-secondary">Reanudar</button>
+      <button id="btn-nueva" class="btn btn-primary">Partida nueva</button>
+    </div>
+    <p id="start-error" class="init-error hidden"></p>
   </div>
 </section>
 

@@ -1095,3 +1095,28 @@ img{
   stroke-width: 2;
   fill: none;
 }
+
+.pantalla-inicio .actions-row {
+  flex-wrap: wrap;            
+  gap: 10px;                  
+}
+
+.pantalla-inicio .actions-row .btn {
+  display: inline-flex;       
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;             
+  margin: 0;                  
+  padding: 8px 14px;          
+  font-size: 1.4rem;         
+  line-height: 1.2;
+  min-width: auto;           
+  border-radius: 6px;
+}
+
+@media (max-width: 420px) {
+  .pantalla-inicio .actions-row .btn {
+    padding: 8px 12px;
+    font-size: 1.3rem;
+  }
+}
