@@ -1,12 +1,12 @@
 <?php
-// Delegar acciones (JSON limpio) al controlador
+// Endpoints JSON del juego
 if (isset($_REQUEST['action'])) {
     require_once APP_PATH . '/Controllers/JuegoControlador.php';
     JuegoControlador::handleRequest();
     exit;
 }
 
-// Detectar usuario logueado (ajusta a tu sistema de auth)
+// Usuario logueado
 if (session_status() === PHP_SESSION_NONE) session_start();
 $userId = 0;
 if (isset($_SESSION['usuario']['id'])) $userId = (int)$_SESSION['usuario']['id'];
@@ -21,7 +21,6 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
   <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
   <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
   <script>
-    // Exponer user id al front
     window.GAME_USER_ID = <?= (int)$userId ?>;
   </script>
   <script src="<?= asset('js/main.js') ?>" defer></script>
@@ -55,6 +54,9 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
     <div class="bandeja">
       <h4>Dinosaurios</h4>
       <div class="dinosaurios" id="bandeja-1"></div>
+      <div class="dice-wrap">
+        <img id="dice-1" class="dice-img inactive" src="<?= asset('imgs/dado/dado1.png') ?>" alt="Dado jugador 1" data-player="1">
+      </div>
     </div>
   </div>
 
@@ -66,6 +68,9 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
     <div class="bandeja">
       <h4>Dinosaurios</h4>
       <div class="dinosaurios" id="bandeja-2"></div>
+      <div class="dice-wrap">
+        <img id="dice-2" class="dice-img inactive" src="<?= asset('imgs/dado/dado1.png') ?>" alt="Dado jugador 2" data-player="2">
+      </div>
     </div>
   </div>
 </div>
