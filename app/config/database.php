@@ -1,13 +1,19 @@
 <?php
+declare(strict_types=1);
 
-echo "Conectando base de datos";
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-$db = mysqli_connect('localhost', 'root', 'root', 'dinoking_database');
+function db(): mysqli {
+    static $conn = null;
+    if ($conn instanceof mysqli) return $conn;
 
-if (!$db) {
-    die('Error de conexión: ' . mysqli_connect_error());
+    $host = getenv('DB_HOST') ?: '127.0.0.1';
+    $port = (int)(getenv('DB_PORT') ?: 3306);
+    $name = getenv('DB_NAME') ?: 'dinoking_database'; 
+    $user = getenv('DB_USER') ?: 'root';
+    $pass = getenv('DB_PASS') ?: 'root';
+
+    $conn = new mysqli($host, $user, $pass, $name, $port);
+    $conn->set_charset('utf8mb4');
+    return $conn;
 }
-
-echo "Conexión exitosa!";
-
-?>|

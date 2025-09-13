@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap');
+
+
 html {
     box-sizing: border-box;
     font-size: 62.5%;
@@ -310,7 +313,177 @@ span {
 }
 
 
-/** Contacto **/
+/* Modales */
+.form-log {
+  display: flex;
+  justify-content: center;
+}
+
+.form-wrap {
+  background-image: url('../imgs/fondo-modal.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 2rem;
+  width: 100%;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+}
+
+.form-wrap::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom right, rgba(30, 41, 59, 0.5), rgba(17, 24, 39, 0.6));
+  z-index: 1;
+}
+
+.form-wrap legend{
+    display: table;
+    margin: 0 auto 40px auto;
+    text-align: center;
+}
+
+legend {
+  color: #fff;
+  font-size: 25px;
+  margin-bottom: 40px;
+  text-transform: uppercase;
+  font-family: "Archivo Black", sans-serif;
+  font-style: normal;
+  font-optical-sizing: auto;
+}
+
+.login {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 400px;
+}
+
+input[type=password],
+input[type=text],
+input[type=email] {
+  display: inline-block;
+  width: 100%;
+  padding: 13px 18px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  outline: none;
+  transition: background 0.3s ease, border 0.3s ease;
+}
+
+input[type=password]:focus,
+input[type=text]:focus,
+input[type=email]:focus {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+form input::placeholder {
+  color: #a4a6a8;
+  opacity: 1;
+}
+
+.boton-login {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  color: #fff;
+  font-weight: bolder;
+  background-color: #3b82f6;
+  border: none;
+  border-radius: 6px;
+  text-transform: uppercase;
+  opacity: 0.85;
+  transition: opacity 0.3s ease;
+}
+
+.boton-login:hover { opacity: 1; }
+
+.forgotten {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  color: #e2e8f0;
+  text-decoration: none;
+  margin-top: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 41, 59, 0.8);
+  display: none;            
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  position: relative;
+  width: auto;
+  max-width: 90%;
+  color: #fff;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 2rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+.navegacion a.btn-auth {
+  display: inline-block;
+  padding: 10px 14px;
+  margin-left: 10px;
+  background-color: #166534;  
+  color: #ffffff;
+  border: 2px solid #166534;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  border-radius: 4px;          
+  transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.navegacion a.btn-auth:hover {
+  background-color: #ffffff;
+  color: #166534;
+  border-color: #166534;
+  outline: none;
+}
+
+.navegacion a.btn-auth:active {
+  transform: translateY(1px);
+}
+
+.form-errors {
+  background: #ffe5e5;
+  color: #b00020;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid #ffb3b3;
+}
+body.modal-open { 
+    overflow: hidden; 
+}
+
+
+/* Contacto */
 
 .formulario-contacto {
     padding: 5rem;
