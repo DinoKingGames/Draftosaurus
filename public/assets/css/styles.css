@@ -537,7 +537,7 @@ textarea {
 }
 .tablero-seguimiento {
     display: grid;
-    grid-template-columns: repeat(3, 120px); /* 3 columnas */
+    grid-template-columns: repeat(3, 120px);
     grid-auto-rows: 120px;
     gap: 10px;
     justify-content: center;
@@ -681,13 +681,16 @@ img{
     width: 100%;
     margin-top: 20px;
     box-sizing: border-box;
+    transition: transform 320ms ease, opacity 320ms ease;
 }
 
 .tablero {             
-    flex: 1;   
-    height: 100%;
-    aspect-ratio: 3 / 2;     
     position: relative;
+    flex: 1;   
+    width: 100%;
+    max-width: 1100px;
+    height: 100%;
+    aspect-ratio: 1086 / 768;
     overflow: hidden;
     background-image: url("../imgs/juego.jpg");
     background-size: contain;    
@@ -695,12 +698,6 @@ img{
     background-repeat: no-repeat;
     border: 2px solid #333;
     border-radius: 8px;
-
-}
-
-.imagen-tablero {
-    z-index: 1;
-    position: absolute;
 }
 
 .bandeja {
@@ -758,13 +755,6 @@ img{
 
 .mini-dino:hover {
     transform: scale(1.2);
-}
-
-.tablero {
-  position: relative;
-  width: 100%;
-  max-width: 1100px;
-  aspect-ratio: 1086 / 768;
 }
 
 /* Colocación Drag and Drop */
@@ -917,7 +907,7 @@ img{
         appearance: none;
         border: none;
         border-radius: 0; 
-        background: linear-gradient(180deg, #2faa6a, #24995f); /* semi oscuro, no muy oscuro */
+        background: linear-gradient(180deg, #2faa6a, #24995f);
         color: #ffffff;
         font-weight: 800;
         padding: 12px 22px;
@@ -1026,4 +1016,65 @@ img{
     max-width: 56px;
     height: auto;
   }
+}
+
+/* Estado de usuario y roles */
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 14px;
+  padding: 6px 10px;
+  background: rgba(22, 101, 52, 0.08);
+  color: #0f172a;
+  border: 1px solid rgba(22, 101, 52, 0.18);
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #e6f6ec;
+}
+
+.user-name {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #fff;
+}
+
+.navegacion a.btn-admin {
+  display: inline-block;
+  padding: 8px 12px;
+  margin-left: 10px;
+  background-color: #92400e;
+  color: #fff;
+  border: 2px solid #92400e;
+  text-decoration: none;
+  font-weight: 700;
+  border-radius: 6px;
+  transition: all .2s ease;
+}
+
+.navegacion a.btn-admin:hover,
+.navegacion a.btn-admin:focus {
+  background-color: #fff;
+  color: #92400e;
+}
+
+.navegacion a.btn-logout {
+  background-color: #fff;
+  color: #166534;
+}
+
+.navegacion a.btn-logout:hover,
+.navegacion a.btn-logout:focus {
+  background-color: #f1f5f9;
+  color: #14532d;
+  border-color: #14532d;
 }
