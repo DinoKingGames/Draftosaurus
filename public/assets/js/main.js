@@ -17,7 +17,6 @@ let [campoUnoCantidad, campoDosCantidad, campoTresCantidad, campoCuatroCantidad,
 
 let campoCincoUsados = [false,false,false,false,false,false];
 
-// mantenemos tu contador de colores por sección, pero lo usamos sólo para el score
 let campoColores = {
   1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []
 };
@@ -36,7 +35,6 @@ function mostrarMensaje(texto) {
   if (cont) cont.textContent = texto || '';
 }
 
-// Agregado: marcador de puntajes (evita ReferenceError y unifica origen)
 function setScoresFrom(payload) {
   const s1 = document.getElementById('score-1');
   const s2 = document.getElementById('score-2');
@@ -59,7 +57,6 @@ function setScoresFrom(payload) {
   }
 }
 
-/* ===================== HUD: estilos + helpers ===================== */
 function injectHudStyles() {
   if (document.getElementById('hud-styles')) return;
   const style = document.createElement('style');
@@ -121,7 +118,6 @@ function injectHudStyles() {
   .restriction.empty  { box-shadow: inset 0 0 0 1px rgba(149,165,166,.35); }
   .restriction.trex   { box-shadow: inset 0 0 0 1px rgba(155,89,182,.35); }
   .restriction.neutral { opacity: .8; }
-  /* Pequeño facelift a los puntajes existentes si están en el DOM */
   #score-1, #score-2 {
     display: inline-block; min-width: 22px; text-align: center;
     padding: 2px 6px; border-radius: 8px; margin: 0 3px;
@@ -221,7 +217,6 @@ function updateRestrictionBanner(game, player) {
   const text = banner.querySelector('.text');
   const chipsWrap = banner.querySelector('.chips');
 
-  // reset
   banner.className = 'restriction neutral';
   chipsWrap.innerHTML = '';
   if (img) img.src = diceSrcByIndex(1);
@@ -254,9 +249,6 @@ function updateRestrictionBanner(game, player) {
   }
 }
 
-/* ===================== Código de tablero + dado ===================== */
-
-// Mapeos de recintos (alineado al backend; "El Rio" sin tilde)
 const RECINTO_MAP = {
   1: "El Bosque de la Semejanza",
   2: "El Rio",
@@ -268,7 +260,6 @@ const RECINTO_MAP = {
 };
 const NAME_TO_ZONE = Object.fromEntries(Object.entries(RECINTO_MAP).map(([id, name]) => [name, Number(id)]));
 
-// Normalizador para tolerar tildes y pequeños cambios en nombres
 function normalizeName(s) {
   return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
@@ -276,24 +267,19 @@ const NAME_TO_ZONE_NORM = Object.fromEntries(
   Object.entries(RECINTO_MAP).map(([id, name]) => [normalizeName(name), Number(id)])
 );
 
-// Base de assets
 const IMG_BASE = (() => {
   try { return new URL('../imgs/', document.currentScript.src).href; }
   catch { return '/assets/imgs/'; }
 })();
 
-// API base (misma URL de la página)
 const API_URL = new URL(window.location.href);
 
-// Usuario y almacenamiento local
 const USER_ID = (typeof window !== 'undefined' && window.GAME_USER_ID) ? window.GAME_USER_ID : 0;
 const STORAGE_KEY = 'drafto_game_id';
 let gameId = Number(localStorage.getItem(STORAGE_KEY) || 0);
 
-// Estado global actual del juego
 let CURRENT_GAME = null;
 
-// Diccionario especie -> imagen (se completa con manos)
 const SPECIES_IMG = Object.create(null);
 const SPECIES_ALIAS = {
   "Rosado": "rosa",
@@ -306,7 +292,6 @@ const SPECIES_ALIAS = {
   "T-Rex": "trex"
 };
 
-/* ---------------------- Imágenes dinosaurios ---------------------- */
 function imageForTipo(tipo) {
   if (!tipo) return `${IMG_BASE}minis/placeholder.png`;
   if (SPECIES_IMG[tipo]) return SPECIES_IMG[tipo];
@@ -321,7 +306,6 @@ function updateSpeciesMapFromHand(hand) {
   });
 }
 
-/* ----------------------- Hidratación tablero ----------------------- */
 function clearBoardSlotsForPlayer(player) {
   const boardEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
   if (!boardEl) return;
@@ -342,7 +326,6 @@ function hydrateFromState(game) {
     if (!playerEl) continue;
 
     for (const [recintoName, dinos] of Object.entries(boards)) {
-      // Resolver zoneId con fallback normalizado
       let zoneId = NAME_TO_ZONE[recintoName];
       if (!zoneId) zoneId = NAME_TO_ZONE_NORM[normalizeName(recintoName)];
       if (!zoneId) {
@@ -371,7 +354,6 @@ function hydrateFromState(game) {
   }
 }
 
-/* -------------------------- Dado (UI) -------------------------- */
 function updateDiceUI(game) {
   const d1 = document.getElementById('dice-1');
   const d2 = document.getElementById('dice-2');
@@ -391,7 +373,6 @@ function updateDiceUI(game) {
   d2.classList.toggle('inactive', appliesTo !== 2 || !face);
 }
 
-// Spin real (~1s) ciclando caras
 let isDiceRolling = false;
 function startDiceSpin(el) {
   if (!el) return () => {};
@@ -410,7 +391,6 @@ function startDiceSpin(el) {
   return () => { clearInterval(timer); el.classList.remove('spin'); };
 }
 
-/* ----------------- Bloqueo de zonas por dado/turno ----------------- */
 function applyDiceLocksForPlayer(game, player) {
   const msg = document.getElementById('mensaje');
   const dice = game?.dice || {};
@@ -419,13 +399,11 @@ function applyDiceLocksForPlayer(game, player) {
   const allowedNames = Array.isArray(dice?.allowed_recintos) ? dice.allowed_recintos : null;
   const turnRolled = !!dice?.turn_rolled;
 
-  // Limpiar
   document.querySelectorAll(`.contenedor-juego[data-player="${player}"] .dropzone`).forEach(z => {
     z.classList.remove('disabled');
     z.removeAttribute('title');
   });
 
-  // Si no se tiró el dado aún en este turno -> bloquear todo
   if (!turnRolled) {
     const playerEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
     if (playerEl) {
@@ -438,7 +416,6 @@ function applyDiceLocksForPlayer(game, player) {
     return;
   }
 
-  // Si hay una restricción ACTIVA para este jugador
   if (face && appliesTo === player && allowedNames) {
     const allowedSet = new Set(allowedNames);
     const playerEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
@@ -456,11 +433,9 @@ function applyDiceLocksForPlayer(game, player) {
     return;
   }
 
-  // Sin restricciones visibles
   if (msg) msg.textContent = '';
 }
 
-/* --------------------------- API helper --------------------------- */
 async function api(action, params = {}, options = {}) {
   const { ignoreGameId = false } = options;
   const isGet = ['init','get_hand','state','load','roll'].includes(action);
@@ -497,7 +472,6 @@ async function api(action, params = {}, options = {}) {
   }
 }
 
-// Resync helper tras errores
 async function syncStateAndRefresh() {
   const s = await api('state');
   if (s?.success && s.data?.game) {
@@ -511,7 +485,6 @@ async function syncStateAndRefresh() {
   return s;
 }
 
-/* ------------------------- Drag & Drop + UI ------------------------- */
 function makeDraggable(img) {
   img.setAttribute('draggable', 'true');
   if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (Date.now() + Math.random()).toString(36);
@@ -544,7 +517,6 @@ function renderBandejaFor(player, hand) {
   });
 }
 
-// Zonas del tablero
 const ZONAS = [
   { id: 1, nombre: 'Bosque Semejanza', x: 0,  y: 2,  w: 38, h: 32, slots: 6, cols: 6 },
   { id: 3, nombre: 'Trío Frondoso',    x: 10, y: 37, w: 23, h: 18, slots: 3, cols: 3 },
@@ -606,7 +578,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
         return;
       }
 
-      // Si no se tiró el dado, no intentes colocar
       if (!CURRENT_GAME?.dice?.turn_rolled) {
         alert('Primero tirá el dado');
         return;
@@ -673,7 +644,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
           freeSlot.appendChild(img);
         }
 
-        // Actualizar bandeja, marcador, estado y bloqueos de dado
         renderBandejaFor(currentPlayer, r.data?.new_hand || []);
         setScoresFrom(r.data);
         if (r.data?.game) {
@@ -686,13 +656,11 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
           await syncStateAndRefresh();
         }
 
-        // Guardar game_id si vino
         if (r.data?.game_id && !gameId) {
           gameId = Number(r.data.game_id);
           localStorage.setItem(STORAGE_KEY, String(gameId));
         }
 
-        // Traer mano del siguiente jugador
         const nextPlayer = Number(r?.data?.game?.current_player || (currentPlayer === 1 ? 2 : 1));
         try {
           const handNext = await api('get_hand', { player: nextPlayer });
@@ -709,7 +677,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
           }
         } catch {}
 
-        // Cambiar visualmente de jugador (usa el callback del cierre correcto)
         showPlayerCb(nextPlayer);
 
         if (r.data?.finished) alert('Partida finalizada');
@@ -724,7 +691,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
   });
 }
 
-/* ------------------------ DOMContentLoaded ------------------------ */
 document.addEventListener('DOMContentLoaded', () => {
   injectHudStyles();
   ensureHud();
@@ -740,7 +706,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const isCurrent = Number(el.dataset.player) === p;
       el.classList.toggle('hidden', !isCurrent);
     });
-    // Si tenés dos dados visibles, podés alternar su estado con este selector
     document.querySelectorAll('.dice-img').forEach(img => {
       img.classList.toggle('inactive', Number(img.dataset.player) !== p);
     });
@@ -757,14 +722,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Render inicial de zonas (ambos tableros) pasando los callbacks correctos
   document.querySelectorAll('.contenedor-juego').forEach(boardEl => {
     const player = Number(boardEl.dataset.player || '1');
     const tablero = boardEl.querySelector('.tablero');
     renderZonasFor(tablero, player, getCurrentPlayer, showPlayer);
   });
 
-  // Botones inicio
   const btnReanudar = document.getElementById('btn-reanudar');
   const pantalla = document.getElementById('pantalla-inicio');
   const startErr = document.getElementById('start-error');
@@ -863,7 +826,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Dado: click (siempre intentamos tirar y dejamos que el backend valide)
   async function onDiceClick(clickedEl) {
     if (isDiceRolling) return;
     if (!CURRENT_GAME) return;
@@ -876,7 +838,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const r = await api('roll', {});
       stop();
       if (!r?.success) {
-        // Si backend responde que ya tiraste o cualquier otro error, sincronizamos
         if (r?.data?.game) {
           CURRENT_GAME = r.data.game;
           const cp = Number(CURRENT_GAME.current_player || 1);
@@ -908,7 +869,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Listeners
   if (btnReanudar) {
     if (!USER_ID || !gameId) {
       btnReanudar.disabled = true;
@@ -920,10 +880,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dice-1')?.addEventListener('click', (e) => onDiceClick(e.currentTarget));
   document.getElementById('dice-2')?.addEventListener('click', (e) => onDiceClick(e.currentTarget));
 
-  // No auto-reanudamos al cargar
 });
 
-/* ----------------------- UI auxiliar legado ----------------------- */
 function actualizarMostrar(seccion, color) {
   const btn = document.getElementById(`btn${seccion}`);
   if (!btn) return;
