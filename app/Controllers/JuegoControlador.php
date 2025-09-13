@@ -1,9 +1,9 @@
 <?php
-// Controlador principal del juego (persistencia vía mysqli + GameResume)
+// Controlador principal del juego
 
 require_once APP_PATH . '/Controllers/DinosaurioController.php';
-require_once APP_PATH . '/config/database.php';                 // define db(): mysqli
-require_once APP_PATH . '/Repositories/EstadoPartidaRepository.php';  // clase GameResume (mysqli)
+require_once APP_PATH . '/config/database.php';
+require_once APP_PATH . '/Repositories/EstadoPartidaRepository.php';
 
 class JuegoControlador
 {
@@ -20,6 +20,37 @@ class JuegoControlador
         'El Rio',
     ];
 
+    // Clasificación de recintos para restricciones del dado
+    private static array $TOP_RECINTOS = [ // Bosque (parte superior)
+        'El Bosque de la Semejanza',
+        'El Trío Frondoso',
+        'El Rey de la Selva',
+        'El Prado de la Diferencia',
+    ];
+    private static array $BOTTOM_RECINTOS = [ // Llanura (parte inferior)
+        'La Pradera del Amor',
+        'La Isla Solitaria',
+    ];
+    private static array $LEFT_RECINTOS = [ // Cafetería (izquierda del río)
+        'El Bosque de la Semejanza',
+        'El Trío Frondoso',
+        'La Pradera del Amor',
+    ];
+    private static array $RIGHT_RECINTOS = [ // Baños (derecha del río)
+        'El Rey de la Selva',
+        'El Prado de la Diferencia',
+        'La Isla Solitaria',
+    ];
+
+    private static array $DICE_FACES = [
+        'Bosque',             // 1
+        'Llanura',            // 2
+        'Cafetería',          // 3
+        'Baños',              // 4
+        'Recinto vacío',      // 5
+        'Zona libre de T‑Rex' // 6
+    ];
+
     private static function jsonResponse(bool $success, int $code, string $message, $data = null): void {
         header('Content-Type: application/json; charset=utf-8');
         $resp = ['success' => $success, 'code' => $code, 'message' => $message];
@@ -29,19 +60,45 @@ class JuegoControlador
     }
 
     private static function publicState(array $g): array {
+        $dice = $g['dice'] ?? [
+            'active' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
+            'queued' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
+            'history'=> [],
+            'last_roll_turn' => null
+        ];
+
+        // allowed_recintos para la restricción ACTIVA (la que aplica ahora)
+        $active = $dice['active'] ?? null;
+        $allowed = null;
+        if (!empty($active['applies_to']) && !empty($active['face'])) {
+            $allowed = self::computeAllowedRecintos($g, (int)$active['applies_to'], (string)$active['face']);
+        }
+
+        // turn_rolled: ya se tiró el dado en este turno (antes de colocar)
+        $turnRolled = (isset($dice['last_roll_turn']) && isset($g['placed']) && $dice['last_roll_turn'] === $g['placed']);
+
         return [
             'hands' => [
                 1 => array_map([self::class, 'pubDino'], $g['hands'][1]),
                 2 => array_map([self::class, 'pubDino'], $g['hands'][2]),
             ],
             'boards' => $g['boards'],
-            'overall_round' => $g['overall_round'],
-            'cycle' => $g['cycle'],
-            'current_player' => $g['current_player'],
-            'placed' => $g['placed'],
-            'finished' => $g['finished'],
-            'sack_remaining' => count($g['sack']),
-            'placed_count' => $g['placed_count'],
+            'overall_round' => $g['overall_round'] ?? 1,
+            'cycle' => $g['cycle'] ?? 1,
+            'current_player' => $g['current_player'] ?? 1,
+            'placed' => $g['placed'] ?? 0,
+            'finished' => $g['finished'] ?? false,
+            'sack_remaining' => count($g['sack'] ?? []),
+            'placed_count' => $g['placed_count'] ?? [1=>0,2=>0],
+            'dice' => [
+                // Dado activo (lo que restringe AHORA)
+                'face' => $active['face'] ?? null,
+                'roller' => $active['roller'] ?? null,
+                'applies_to' => $active['applies_to'] ?? null,
+                'allowed_recintos' => $allowed,
+                // Marcador de si ya se tiró en este turno (para habilitar colocar)
+                'turn_rolled' => $turnRolled,
+            ],
         ];
     }
 
@@ -113,6 +170,12 @@ class JuegoControlador
             'finished' => false,
             'placed_count' => [1=>0, 2=>0],
             'players' => [1=>'Jugador 1', 2=>'Jugador 2'],
+            'dice' => [
+                'active' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
+                'queued' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
+                'history'=> [],
+                'last_roll_turn' => null,
+            ],
         ];
     }
 
@@ -140,7 +203,7 @@ class JuegoControlador
     public static function handleRequest(): void {
         if (session_status() === PHP_SESSION_NONE) session_start();
         $action = $_REQUEST['action'] ?? null;
-        if (!$action) self::jsonResponse(false, 400, 'Acción no especificada. Uso: action=init|get_hand|state|place|winner|load');
+        if (!$action) self::jsonResponse(false, 400, 'Acción no especificada. Uso: action=init|get_hand|state|place|winner|load|roll');
 
         switch ($action) {
             case 'init': {
@@ -226,14 +289,41 @@ class JuegoControlador
 
                 $turnBefore = $g['current_player'] ?? $player;
 
+                // Enforce: siempre hay que tirar el dado ANTES de colocar (sin excepciones)
+                $turnRolled = (isset($g['dice']['last_roll_turn']) && isset($g['placed']) && $g['dice']['last_roll_turn'] === $g['placed']);
+                if (!$turnRolled) {
+                    self::jsonResponse(false, 1012, 'Primero tirá el dado para este turno.', [
+                        'game' => self::publicState($g)
+                    ]);
+                }
+
+                // Validar restricción ACTIVA si aplica a este jugador (vigente del turno anterior)
+                $active = $g['dice']['active'] ?? null;
+                if (!empty($active['applies_to']) && (int)$active['applies_to'] === $player && !empty($active['face'])) {
+                    $allowed = self::computeAllowedRecintos($g, $player, (string)$active['face']);
+                    if (!empty($allowed) && $recinto !== null) {
+                        if (!in_array($recinto, $allowed, true)) {
+                            self::jsonResponse(false, 1011, 'Movimiento no permitido por dado: ' . $active['face'], [
+                                'game' => self::publicState($g)
+                            ]);
+                        }
+                    }
+                }
+
                 $placeData = self::handlePlace($g, $player, $dinoId, $speciesLegacy, $recinto);
 
+                // Al terminar de colocar: promover la restricción "queued" a "active" y limpiar "queued"
+                $g['dice']['active'] = $g['dice']['queued'] ?? ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null];
+                $g['dice']['queued'] = ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null];
+
+                // Recalcular scores para respuesta
                 $calc = self::calculateWinner($g);
                 $placeData['scores'] = [
                     1 => $calc['players'][1]['total'] ?? 0,
                     2 => $calc['players'][2]['total'] ?? 0,
                 ];
 
+                // Persistencia
                 $userId = self::currentUserId();
                 $gameId = isset($_REQUEST['game_id']) ? (int)$_REQUEST['game_id'] : 0;
                 if ($gameId > 0) {
@@ -253,7 +343,61 @@ class JuegoControlador
                 }
 
                 $placeData['game_id'] = $gameId ?: null;
+                $placeData['game'] = self::publicState($g);
+
                 self::jsonResponse(true, 0, 'Dinosaurio colocado', $placeData);
+                break;
+            }
+
+            case 'roll': {
+                if (!isset($_SESSION['game'])) self::jsonResponse(false, 409, 'No hay partida cargada (usa init o load)');
+                $g = &$_SESSION['game'];
+                if (!empty($g['finished'])) self::jsonResponse(false, 409, 'La partida ya ha finalizado');
+
+                $current = (int)($g['current_player'] ?? 1);
+
+                // No re-tirar si ya se tiró para este turno (antes de colocar)
+                $turnRolled = (isset($g['dice']['last_roll_turn']) && isset($g['placed']) && $g['dice']['last_roll_turn'] === $g['placed']);
+                if ($turnRolled) {
+                    self::jsonResponse(false, 409, 'Ya tiraste el dado para este turno.', [
+                        'game' => self::publicState($g)
+                    ]);
+                }
+
+                // Tirada: se guarda como "queued" para el rival (aplica en el próximo turno)
+                $face = self::rollDie();
+                $g['dice']['queued'] = [
+                    'face' => $face,
+                    'roller' => $current,           // tira el jugador actual
+                    'applies_to' => (3 - $current), // afecta al rival (próximo turno)
+                    'turn' => $g['placed'] ?? 0,
+                ];
+                $g['dice']['last_roll_turn'] = $g['placed'] ?? 0;
+
+                // Historial
+                $g['dice']['history'][] = [
+                    'face' => $face,
+                    'roller' => $current,
+                    'applies_to' => (3 - $current),
+                    'at' => date('c'),
+                    'turn' => $g['placed'] ?? 0,
+                ];
+
+                // Persistir
+                $gameId = isset($_REQUEST['game_id']) ? (int)$_REQUEST['game_id'] : 0;
+                if ($gameId > 0) {
+                    try { self::storage()->saveState($gameId, $g); }
+                    catch (Throwable $e) {
+                        self::jsonResponse(false, 500, 'No se pudo guardar el estado del dado: ' . $e->getMessage(), [
+                            'game' => self::publicState($g)
+                        ]);
+                    }
+                }
+
+                self::jsonResponse(true, 0, 'Dado tirado', [
+                    'rolled_face' => $face,
+                    'game' => self::publicState($g),
+                ]);
                 break;
             }
 
@@ -266,14 +410,14 @@ class JuegoControlador
             }
 
             default:
-                self::jsonResponse(false, 400, 'Acción desconocida. Uso: action=init|get_hand|state|place|winner|load');
+                self::jsonResponse(false, 400, 'Acción desconocida. Uso: action=init|get_hand|state|place|winner|load|roll');
         }
     }
 
     private static function handlePlace(array &$g, int $player, $dinoId, $speciesLegacy, $recinto): array {
         if (!in_array($player, [1,2], true)) self::jsonResponse(false, 1003, 'Jugador inválido');
-        if ($g['finished']) self::jsonResponse(false, 1002, 'La partida ya ha finalizado');
-        if ($player !== $g['current_player']) self::jsonResponse(false, 1004, 'No es tu turno');
+        if (!empty($g['finished'])) self::jsonResponse(false, 1002, 'La partida ya ha finalizado');
+        if ($player !== ($g['current_player'] ?? 1)) self::jsonResponse(false, 1004, 'No es tu turno');
         if ($recinto !== null && !in_array($recinto, self::$RECINTOS, true)) self::jsonResponse(false, 1007, 'Recinto inválido');
 
         $idx = -1;
@@ -302,12 +446,15 @@ class JuegoControlador
         $g['placed_count'][$player] = ($g['placed_count'][$player] ?? 0) + 1;
         $g['placed'] = ($g['placed'] ?? 0) + 1;
 
+        // Robar nueva mano (placeholder)
         foreach ($g['hands'][$player] as $d) { $g['sack'][] = $d; }
         $g['hands'][$player] = self::draw($g['sack'], self::HAND_SIZE);
 
+        // Siguiente jugador
         $g['current_player'] = (3 - $player);
 
-        $g['finished'] = ($g['placed_count'][1] >= self::HAND_SIZE && $g['placed_count'][2] >= self::HAND_SIZE);
+        // Fin de partida (simplificado a 6 colocaciones por jugador)
+        $g['finished'] = (($g['placed_count'][1] ?? 0) >= self::HAND_SIZE && ($g['placed_count'][2] ?? 0) >= self::HAND_SIZE);
 
         return [
             'player' => $player,
@@ -316,7 +463,6 @@ class JuegoControlador
             'placed_count' => $g['placed_count'],
             'sack_remaining' => count($g['sack']),
             'finished' => $g['finished'],
-            'game' => self::publicState($g),
         ];
     }
 
@@ -352,7 +498,7 @@ class JuegoControlador
     private static function calculateWinner(array $g): array {
         $results = [1=>['total'=>0,'by_recinct'=>[]], 2=>['total'=>0,'by_recinct'=>[]]];
 
-        $bosqueSemejanza = [0,2,4,8,12,18,24]; // por cantidad
+        $bosqueSemejanza = [0,2,4,8,12,18,24];
         $pradoDiferencia = [0,1,3,6,10,15,21];
 
         foreach ([1,2] as $p) {
@@ -417,7 +563,7 @@ class JuegoControlador
 
         $winner = null;
         if ($results[1]['total'] > $results[2]['total']) $winner = $results[1];
-        elseif ($results[2]['total'] > $results[1]['total']) $winner = $results[2];
+        elseif ($results[2]['total'] > $results[1]) $winner = $results[2];
 
         return [
             'players' => $results,
@@ -431,6 +577,43 @@ class JuegoControlador
         foreach ($board as $dinos) foreach ($dinos as $d) if ($d === $species) $c++;
         return $c;
     }
-}
 
-// No autoejecutar aquí: jugar.php llama a handleRequest cuando viene ?action=...
+    private static function rollDie(): string {
+        $faces = self::$DICE_FACES;
+        return $faces[random_int(0, count($faces)-1)];
+    }
+
+    private static function computeAllowedRecintos(array $g, int $appliesTo, ?string $face): array {
+        if (!$face) return [];
+        $allowed = [];
+
+        foreach (self::$RECINTOS as $r) {
+            // Excluir el río para Bosque/Llanura/Cafetería/Baños
+            if (in_array($face, ['Bosque','Llanura','Cafetería','Baños'], true) && $r === 'El Rio') {
+                continue;
+            }
+            switch ($face) {
+                case 'Bosque':
+                    if (in_array($r, self::$TOP_RECINTOS, true)) $allowed[] = $r;
+                    break;
+                case 'Llanura':
+                    if (in_array($r, self::$BOTTOM_RECINTOS, true)) $allowed[] = $r;
+                    break;
+                case 'Cafetería':
+                    if (in_array($r, self::$LEFT_RECINTOS, true)) $allowed[] = $r;
+                    break;
+                case 'Baños':
+                    if (in_array($r, self::$RIGHT_RECINTOS, true)) $allowed[] = $r;
+                    break;
+                case 'Recinto vacío':
+                    if (empty($g['boards'][$appliesTo][$r])) $allowed[] = $r;
+                    break;
+                case 'Zona libre de T‑Rex':
+                    $hasTrex = in_array('T-Rex', $g['boards'][$appliesTo][$r] ?? [], true);
+                    if (!$hasTrex) $allowed[] = $r;
+                    break;
+            }
+        }
+        return $allowed;
+    }
+}

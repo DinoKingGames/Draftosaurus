@@ -1120,3 +1120,36 @@ img{
     font-size: 1.3rem;
   }
 }
+
+/* Dado */
+
+.dice-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
+}
+.dice-img {
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.dice-img.inactive {
+  opacity: 0.5;
+}
+.dice-img.spin {
+  animation: dice-spin 1s ease-in-out;
+}
+@keyframes dice-spin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(360deg) scale(1.05); }
+  100% { transform: rotate(720deg) scale(1); }
+}
+
+.dropzone.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  filter: grayscale(0.6);
+}
