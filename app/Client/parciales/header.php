@@ -1,16 +1,15 @@
-
 <header class="site-header">
     <div class="container">
         <div class="barra">
-            <a href="/" class="logo-contenedor">
-                <img src="Client/imgs/logo_final.png" alt="Logo DinoKing Games">
+            <a href="?page=inicio" class="logo-contenedor">
+                <img src="<?= asset('imgs/logo_final.png') ?>" alt="Logo Final">
                 <h1 class="m0">Dino<span>King Games</span></h1>
             </a>
             <div class="navegacion">
-                <a href="/jugar">Jugar</a>
-                <a href="/seguimiento">Seguimiento</a>
-                <a href="/nosotros">Nosotros</a>
-                <a href="/contacto">Contacto</a>
+                <a href="?page=jugar">Jugar</a>
+                <a href="?page=seguimiento">Seguimiento</a>
+                <a href="?page=nosotros">Nosotros</a>
+                <a href="?page=contacto">Contacto</a>
             </div>
         </div>
         <div class="texto-header">

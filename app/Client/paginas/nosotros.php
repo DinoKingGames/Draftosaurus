@@ -1,23 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+
+    <link rel="icon" href="<?= asset('imgs/favicon.ico') ?>" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
 </head>
-
 <body>
-
-
+    <?php view_partial(name: 'header_simple'); ?>
     <main class="container">
         <h2 class="text-center">Sobre Nosotros </h2>
         <div class="grid">
             <div class="columnas-6">
-                <img src="Client/imgs/team.png" alt="Imagen Nosotros">
+                <img src="<?= asset('imgs/team.png') ?>" alt="Imagen Nosotros">
             </div>
             <div class="columnas-6">
                 <p>
@@ -28,7 +27,6 @@
                 </p>
                 <p>
                      Trabajamos constantemente en mejorar nuestras plataformas y contenidos, promoviendo la creatividad, la interacción y el sentido de comunidad entre jugadores. Además, nos enfocamos en crear espacios online para juegos de mesa que aún no han sido digitalizados, cubriendo así necesidades reales del mercado y abriendo nuevas oportunidades para disfrutar del hobby.
-
                 </p>
                 <p>
                     En todo momento, priorizamos el compromiso y la integridad, alejándonos de la codicia y la complacencia, y manteniendo vivos nuestros sueños de transformar la manera en que se viven los juegos de mesa.
@@ -36,8 +34,6 @@
             </div>
         </div>
     </main>
-
-  
+    <?php view_partial('footer'); ?>
 </body>
-
 </html>
