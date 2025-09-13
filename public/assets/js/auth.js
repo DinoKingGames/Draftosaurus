@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // --------- Apertura/cierre de modales ---------
   const openLoginBtn = document.getElementById('openModal');
   const openRegisterBtn = document.getElementById('openRegister');
   const loginModal = document.getElementById('loginModal');
@@ -140,6 +139,27 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.reload();
       } catch (err) {
         showErrors(registerForm, ['Error de red. Inténtalo de nuevo.']);
+      }
+    });
+  }
+});
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutLink = document.getElementById('logoutLink');
+  if (logoutLink) {
+    logoutLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        const res = await fetch('api.php/auth/logout', {
+          method: 'POST',
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          window.location.reload();
+        }
+      } catch (err) {
+        window.location.reload();
       }
     });
   }
