@@ -11,4 +11,7 @@
             <a href="?page=contacto">Contacto</a>
         </div>
     </div>
+    <?php view_partial('auth-modals'); ?>
+    <script src="<?= asset('js/auth.js') ?>" defer></script>
+
 </footer>

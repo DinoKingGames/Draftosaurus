@@ -10,6 +10,9 @@
                 <a href="?page=seguimiento">Seguimiento</a>
                 <a href="?page=nosotros">Nosotros</a>
                 <a href="?page=contacto">Contacto</a>
+
+                <a href="#" id="openModal" class="btn-auth">Iniciar sesión</a>
+                <a href="#" id="openRegister" class="btn-auth">Registrarse</a>
             </div>
         </div>
         
