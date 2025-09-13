@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/DinosaurioController.php';
+require_once APP_PATH . '/Controllers/DinosaurioController.php';
 
 class JuegoControlador {
     // Tamaño fijo de la mano/bandeja
@@ -411,4 +411,3 @@ class JuegoControlador {
 if (php_sapi_name() !== 'cli') {
     JuegoControlador::handleRequest();
 }
-?>

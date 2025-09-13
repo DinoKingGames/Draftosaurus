@@ -158,6 +158,19 @@ span {
     font-weight: 400;
 }
 
+.header-simple {
+    background-color: #000000;
+    
+}
+
+.header-simple a{
+    color: #fff;
+}
+
+.header-simple h1{
+    text-align: left;
+    font-weight: 400;
+}
 
 /** Navegacion **/
 

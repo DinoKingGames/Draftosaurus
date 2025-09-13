@@ -20,7 +20,25 @@ let campoCincoUsados = [false,false,false,false,false,false];
 // mantenemos tu contador de colores por sección, pero lo usamos sólo para el score
 let campoColores = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] };
 
-let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0, 0];
+let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0];
+
+/* ============================================================
+   Bases dinámicas (evita rutas rotas)
+   - IMG_BASE: resuelve a /public/assets/imgs/ en cualquier entorno
+   - API_URL: usa la URL actual (?page=jugar) para llamar al backend
+   ============================================================ */
+const IMG_BASE = (() => {
+  try {
+    // main.js está en /assets/js/main.js -> ../imgs/ => /assets/imgs/
+    return new URL('../imgs/', document.currentScript.src).href;
+  } catch {
+    // Fallback por si currentScript no existe
+    return '/assets/imgs/';
+  }
+})();
+
+// Apunta a la URL actual (por ejemplo /.../public/?page=jugar)
+const API_URL = new URL(window.location.href);
 
 function terminarPartida(){
     if (totalColocados == 6){
@@ -136,13 +154,12 @@ function actualizarMostrar(seccion, color) {
   const btn = document.getElementById(`btn${seccion}`);
   if (!btn) return;
   const img = document.createElement('img');
-  img.src = `imgs/minis/${dinosaurios[color]}.png`;
+  img.src = `${IMG_BASE}minis/${dinosaurios[color]}.png`;
   img.classList.add('mini-dino');
   btn.appendChild(img);
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  const API_URL = '/Client/jugar.php';   
   let currentPlayer = 1; // empezamos por el jugador 1
   let isSwitching = false;
 
@@ -179,7 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function api(action, params = {}) {
     const isGet = action === 'init' || action === 'get_hand' || action === 'state';
     if (isGet) {
-      const url = new URL(API_URL, window.location.origin);
+      const url = new URL(API_URL); // clonar URL actual (?page=jugar)
       url.searchParams.set('action', action);
       Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
       const res = await fetch(url.toString(), {
@@ -191,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return res.json();
     } else {
       const body = new URLSearchParams({ action, ...params });
-      const res = await fetch(API_URL, {
+      const res = await fetch(API_URL.toString(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' },
         body,

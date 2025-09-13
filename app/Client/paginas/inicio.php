@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Inicio</title>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/normalize.css">
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
 </head>
-
 <body>
-
-
+    <?php view_partial('header'); ?>
     <div class="contenido-principal container">
         <main class="blog">
             <h2>Conoce Draftosaurus</h2>
             <article class="entrada-blog">
                 <div class="imagen">
-                    <img src="Client/imgs/draftosaurus_intro.jpg" alt="">
+                    <img src="<?= asset('imgs/draftosaurus_intro.jpg') ?>" alt="">
                 </div>
                 <div class="entrada-blog">
                     <h3 class="m0">¿Qué es Draftosaurus?</h3>
@@ -28,22 +25,22 @@
             </article>
             <article class="entrada-blog">
                 <div class="imagen">
-                    <img src="Client/imgs/dino_confundido.jpg" alt="">
+                    <img src="<?= asset('imgs/dino_confundido.jpg') ?>" alt="">
                 </div>
                 <div class="entrada-blog">
                     <h3 class="no-margin">¡Aplicación de seguimiento!</h3>
                     <p>En DinoKing Games sabemos lo tedioso que es hacer el conteo de puntos en juegos de mesa. Por eso desarrollamos una aplicación de seguimiento que te permita concentrarte en tu partida. ¡Nosotros calculamos los puntos por ti!</p>
-                    <a href="/seguimiento" class="btn btn-primary">Ve a la aplicación</a>
+                    <a href="?page=seguimiento" class="btn btn-primary">Ve a la aplicación</a>
                 </div>
             </article>
             <article class="entrada-blog">
                 <div class="imagen">
-                    <img src="Client/imgs/drafto_web.png" alt="">
+                    <img src="<?= asset('imgs/drafto_web.png') ?>" alt="">
                 </div>
                 <div class="entrada-blog">
                     <h3 class="m0">Jugar Online</h3>
                     <p>Experiencia por cuenta propia el maravilloso parque de Draftosaurus en su versión de verano ya mismo de forma gratuita. ¡Invita a tus amigos y juega ya!</p>
-                    <a href="/jugar" class="btn btn-primary">Juega Draftosaurus</a>
+                    <a href="?page=jugar" class="btn btn-primary">Juega Draftosaurus</a>
                 </div>
             </article>
         </main>
@@ -55,19 +52,17 @@
                     <h3>Dinosaur Island: Rawr ‘n Write</h3>
                     <p class="m0"><span>Fecha:</span> 23/2/2026</p>
                     <p class="m0"><span>Precio:</span> Gratis </p>
-                    <a href="/proximamente" class="btn btn-secondary">Mas información</a>
+                    <a href="?page=proximamente" class="btn btn-secondary">Mas información</a>
                 </li>
                 <li class="futuros">
                     <h3 class="m0">Dinosaur World</h3>
                     <p class="m0"><span>Precio:</span> 12/4/2026</p>
                     <p class="m0"><span>Cupo:</span> Gratis </p>
-                    <a href="/proximamente" class="btn btn-secondary">Mas información</a>
+                    <a href="?page=proximamente" class="btn btn-secondary">Mas información</a>
                 </li>
             </ul>
         </aside>
     </div>
-
-  
+    <?php view_partial('footer'); ?>
 </body>
-
 </html>

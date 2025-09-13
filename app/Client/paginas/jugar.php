@@ -4,8 +4,22 @@ if (isset($_GET['init']) && !isset($_REQUEST['action'])) {
     $_REQUEST['action'] = 'init';
 }
 if (isset($_REQUEST['action'])) {
-    require_once __DIR__ . '/../Controllers/JuegoControlador.php';
-    JuegoControlador::handleRequest();
+    $ctrlFile1 = APP_PATH . '/Controllers/JuegoControlador.php';
+    $ctrlFile2 = APP_PATH . '/Controllers/JuegoController.php';
+    if (file_exists($ctrlFile1)) {
+        require_once $ctrlFile1;
+    } elseif (file_exists($ctrlFile2)) {
+        require_once $ctrlFile2;
+    }
+
+    if (class_exists('JuegoControlador')) {
+        JuegoControlador::handleRequest();
+    } elseif (class_exists('JuegoController')) {
+        JuegoController::handleRequest();
+    } else {
+        http_response_code(500);
+        echo 'Controller no encontrado';
+    }
     exit;
 }
 ?>
@@ -15,25 +29,32 @@ if (isset($_REQUEST['action'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Juego</title>
-    <link rel="icon" href="/Client/imgs/favicon.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/Client/css/normalize.css">
-    <link rel="stylesheet" href="/Client/css/styles.css">
-    <link rel="stylesheet" href="/Client/css/turnos.css">
-    <script src="/Client/main.js" defer></script>
-</head>
 
+    <link rel="icon" href="<?= asset('imgs/favicon.ico') ?>" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
+    <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
+    <script src="<?= asset('js/main.js') ?>" defer></script>
+</head>
 <body>
+
+<?php view_partial('header_simple'); ?>
+
 <?php
-    require __DIR__ . '/../Controllers/DinosaurioController.php';
-    $controller = new DinosaurioController();
-    $bandeja = $controller->asignacion();
+    $dinoCtrlFile = APP_PATH . '/Controllers/DinosaurioController.php';
+    if (file_exists($dinoCtrlFile)) {
+        require_once $dinoCtrlFile;
+        $controller = new DinosaurioController();
+        $bandeja = $controller->asignacion();
+    } else {
+        $bandeja = [];
+    }
 ?>
 
 <section id="pantalla-inicio" class="pantalla-inicio">
   <div class="inicio-card">
     <img
-      src="/Client/imgs/dinoIntroFinal.gif"
+      src="<?= asset('imgs/dinoIntroFinal.gif') ?>"
       alt="Dinosaurio de bienvenida"
       class="intro-dino"
       width="220"
@@ -51,7 +72,7 @@ if (isset($_REQUEST['action'])) {
   <div class="contenedor-juego hidden" data-player="1">
     <h3 style="margin: 8px 0;">Jugador 1</h3>
     <div class="tablero" id="tablero-1">
-      <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
+      <img src="<?= asset('imgs/juego.jpg') ?>" alt="Tablero de juego" class="imagen-tablero">
     </div>
     <div class="bandeja">
       <h4>Dinosaurios</h4>
@@ -73,10 +94,10 @@ if (isset($_REQUEST['action'])) {
     </div>
   </div>
 
-   <div class="contenedor-juego hidden" data-player="2">
+  <div class="contenedor-juego hidden" data-player="2">
     <h3 style="margin: 8px 0;">Jugador 2</h3>
     <div class="tablero" id="tablero-2">
-      <img src="/Client/imgs/juego.jpg" alt="Tablero de juego" class="imagen-tablero">
+      <img src="<?= asset('imgs/juego.jpg') ?>" alt="Tablero de juego" class="imagen-tablero">
     </div>
     <div class="bandeja">
       <h4>Dinosaurios</h4>
@@ -98,6 +119,8 @@ if (isset($_REQUEST['action'])) {
     </div>
   </div>
 </div>
+
+<?php view_partial('footer'); ?>
 
 </body>
 </html>
