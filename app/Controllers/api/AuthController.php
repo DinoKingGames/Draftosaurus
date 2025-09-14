@@ -34,7 +34,7 @@ class AuthController {
     }
 
     public static function login(array $input): void {
-        $emailOrUser = trim($input['email'] ?? ''); // puedes permitir email o nombre
+        $emailOrUser = trim($input['email'] ?? '');
         $password = (string)($input['password'] ?? '');
 
         $errors = [];

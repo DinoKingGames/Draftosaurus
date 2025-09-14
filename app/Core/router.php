@@ -7,6 +7,7 @@ class Router {
         'proximamente',
         'seguimiento',
         'nosotros',
+        'admin',
     ];
 
     public function handle(): void {

@@ -4,13 +4,12 @@
     <button type="button" class="close-modal" aria-label="Cerrar">&times;</button>
     <section class="form-log">
       <div class="form-wrap">
-        <!-- action sirve como fallback si no hay JS -->
         <form id="loginForm" action="?page=login&action=login" method="post" class="login" novalidate>
           <legend>Bienvenido</legend>
 
           <div class="form-errors" role="alert" aria-live="polite" style="display:none;"></div>
 
-          <label for="login_email">Email</label>
+          <label for="login_email">Usuario o Email</label>
           <input type="email" id="login_email" name="email" placeholder="tu@email.com" required>
 
           <label for="login_password">Contraseña</label>
@@ -45,7 +44,8 @@
           <input type="password" id="reg_password" name="password" placeholder="Contraseña" required>
 
           <label for="reg_password_confirm">Confirmar contraseña</label>
-          <input type="password" id="reg_password_confirm" name="password_confirm" placeholder="Confirmar contraseña" required>
+          <input type="password" id="reg_password_confirm" name="password_confirm" placeholder="Confirmar contraseña"
+            required>
 
           <input type="submit" value="Registrarse" class="boton-login">
           <a href="#" class="forgotten">¿Ya tienes cuenta? Inicia sesión</a>
