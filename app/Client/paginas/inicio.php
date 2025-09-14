@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio</title>
+    <link rel="icon" href="<?= asset(path: 'imgs/favicon.ico') ?>" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans|PT+Sans:400,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
@@ -18,9 +19,9 @@
                     <img src="<?= asset('imgs/draftosaurus_intro.jpg') ?>" alt="">
                 </div>
                 <div class="entrada-blog">
-                    <h3 class="m0">¿Qué es Draftosaurus?</h3>
-                    <p>¡Draftosaurus es un divertido juego de mesa donde tenés que crear tu propio parque de dinosaurios! Vas a elegir dinos de colores, colocarlos en diferentes zonas y tratar de hacer que tu parque sea el más increíble. ¡Es fácil de aprender, rápido de jugar y perfecto para chicos y grandes que aman los dinosaurios! </p>
-                    <a href="/entrada" class="btn btn-primary">Conocer más</a>
+                    <h3 class="m0">¿Qué es DinoKing?</h3>
+                    <p>En DinoKing Games nos apasiona llevar los juegos de mesa al mundo digital. Creamos versiones pequeñas y accesibles de juegos reales, manteniendo la diversión original pero adaptada para que puedas disfrutarlos desde tu computadora o dispositivo, cuando quieras y donde quieras.</p>
+                    <a href="?page=nosotros" class="btn btn-primary">Sobre Nosotros</a>
                 </div>
             </article>
             <article class="entrada-blog">

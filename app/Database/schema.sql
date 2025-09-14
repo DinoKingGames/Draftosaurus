@@ -1,4 +1,4 @@
-CREATE DATABASE dinoking_database;
+CREATE DATABASE IF NOT EXISTS dinoking_database;
 USE dinoking_database;
 
 CREATE TABLE IF NOT EXISTS usuarios (

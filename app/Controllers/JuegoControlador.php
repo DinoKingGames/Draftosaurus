@@ -18,34 +18,34 @@ class JuegoControlador
         'El Rio',
     ];
 
-    private static array $TOP_RECINTOS = [ 
+    private static array $TOP_RECINTOS = [
         'El Bosque de la Semejanza',
         'El Trío Frondoso',
         'El Rey de la Selva',
         'El Prado de la Diferencia',
     ];
-    private static array $BOTTOM_RECINTOS = [ 
+    private static array $BOTTOM_RECINTOS = [
         'La Pradera del Amor',
         'La Isla Solitaria',
     ];
-    private static array $LEFT_RECINTOS = [ 
+    private static array $LEFT_RECINTOS = [
         'El Bosque de la Semejanza',
         'El Trío Frondoso',
         'La Pradera del Amor',
     ];
-    private static array $RIGHT_RECINTOS = [ 
+    private static array $RIGHT_RECINTOS = [
         'El Rey de la Selva',
         'El Prado de la Diferencia',
         'La Isla Solitaria',
     ];
 
     private static array $DICE_FACES = [
-        'Bosque',             // 1
-        'Llanura',            // 2
-        'Cafetería',          // 3
-        'Baños',              // 4
-        'Recinto vacío',      // 5
-        'Zona libre de T‑Rex' // 6
+        'Bosque',
+        'Llanura',
+        'Cafetería',
+        'Baños',
+        'Recinto vacío',
+        'Zona libre de T‑Rex'
     ];
 
     private static function jsonResponse(bool $success, int $code, string $message, $data = null): void {
@@ -60,7 +60,6 @@ class JuegoControlador
         $dice = $g['dice'] ?? [
             'active' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
             'queued' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
-            'history'=> [],
             'last_roll_turn' => null
         ];
 
@@ -114,7 +113,7 @@ class JuegoControlador
 
     private static function buildSack48(): array {
         $dc = new DinosaurioController();
-        $sack = $dc->asignacion(); 
+        $sack = $dc->asignacion();
         if (!is_array($sack) || count($sack) !== 48) {
             throw new RuntimeException('No se pudo construir el saco de 48 dinosaurios.');
         }
@@ -138,7 +137,6 @@ class JuegoControlador
     }
 
     private static function createGame(): array {
-        $species = ["Azul","Cyan","Naranja","Rojo","Rosado","Verde"];
         $sack = self::buildSack48();
 
         $hands = [1=>[],2=>[]];
@@ -152,7 +150,6 @@ class JuegoControlador
         }
 
         return [
-            'species' => $species,
             'sack' => $sack,
             'hands' => $hands,
             'boards' => $boards,
@@ -166,7 +163,6 @@ class JuegoControlador
             'dice' => [
                 'active' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
                 'queued' => ['face'=>null,'applies_to'=>null,'roller'=>null,'turn'=>null],
-                'history'=> [],
                 'last_roll_turn' => null,
             ],
         ];
@@ -354,19 +350,11 @@ class JuegoControlador
                 $face = self::rollDie();
                 $g['dice']['queued'] = [
                     'face' => $face,
-                    'roller' => $current,          
+                    'roller' => $current,
                     'applies_to' => (3 - $current),
                     'turn' => $g['placed'] ?? 0,
                 ];
                 $g['dice']['last_roll_turn'] = $g['placed'] ?? 0;
-
-                $g['dice']['history'][] = [
-                    'face' => $face,
-                    'roller' => $current,
-                    'applies_to' => (3 - $current),
-                    'at' => date('c'),
-                    'turn' => $g['placed'] ?? 0,
-                ];
 
                 $gameId = isset($_REQUEST['game_id']) ? (int)$_REQUEST['game_id'] : 0;
                 if ($gameId > 0) {
@@ -531,7 +519,6 @@ class JuegoControlador
                         break;
                 }
 
-                // Bonificación T‑Rex
                 $hasTRex = in_array('T-Rex', $dinos, true);
                 if ($hasTRex) $score += 1;
 

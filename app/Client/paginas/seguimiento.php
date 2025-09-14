@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="<?= asset('css/normalize.css') ?>">
     <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
 
-    <script src="<?= asset('js/main.js') ?>" defer></script>
 </head>
 <body>
     <?php view_partial('header_simple'); ?>
@@ -46,5 +45,7 @@
 
     <div id="mensaje" class="mensaje"></div>
     <?php view_partial('footer'); ?>
+    <script src="<?= asset('js/seguimiento.js') ?>" defer></script>
+
 </body>
 </html>
