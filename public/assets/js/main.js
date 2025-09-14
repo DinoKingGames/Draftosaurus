@@ -1,35 +1,4 @@
-/* Dinosaurios: 
-Rojo: 0
-Cyan: 1
-Naranja: 2
-Rosa: 3
-Verde: 4
-Azul: 5
-*/
-
-let dinosaurios = ['rojo','cyan','naranja','rosa','verde','azul'];
-let seleccion = null;
-let totalColocados = 0;
-let totalPorColor = [0,0,0,0,0,0];
-
-let campoUnoColor, campoDosColor, campoTresColor, campoCuatroColor, campoCincoColor, campoSeisColor, campoSieteColor; 
-let [campoUnoCantidad, campoDosCantidad, campoTresCantidad, campoCuatroCantidad, campoCincoCantidad, campoSeisCantidad, campoSieteCantidad] = [0, 0, 0, 0, 0, 0, 0];
-
-let campoCincoUsados = [false,false,false,false,false,false];
-
-let campoColores = {
-  1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: []
-};
-
-let [scoreUno, scoreDos, scoreTres, scoreCuatro, scoreCinco, scoreSeis, scoreSiete] = [0, 0, 0, 0, 0, 0, 0];
-
-function terminarPartida(){
-    if (totalColocados == 6){
-        const puntajeFinal = scoreUno + scoreDos + scoreTres + scoreCuatro + scoreCinco + scoreSeis + scoreSiete;
-        mostrarMensaje(`El puntaje final es de: ${puntajeFinal}`);
-    }
-}
-
+/* Sección: Utilidades UI */
 function mostrarMensaje(texto) {
   const cont = document.getElementById('mensaje');
   if (cont) cont.textContent = texto || '';
@@ -39,7 +8,6 @@ function setScoresFrom(payload) {
   const s1 = document.getElementById('score-1');
   const s2 = document.getElementById('score-2');
   if (!s1 || !s2) return;
-
   if (payload?.scores) {
     if (payload.scores[1] != null) s1.textContent = String(payload.scores[1]);
     if (payload.scores[2] != null) s2.textContent = String(payload.scores[2]);
@@ -57,6 +25,7 @@ function setScoresFrom(payload) {
   }
 }
 
+/* Sección: HUD */
 function injectHudStyles() {
   if (document.getElementById('hud-styles')) return;
   const style = document.createElement('style');
@@ -79,6 +48,7 @@ function injectHudStyles() {
     box-shadow: 0 6px 18px rgba(0,0,0,0.2);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji';
   }
+  .hud.hidden { display: none; }
   .hud .player-badge {
     background: linear-gradient(135deg, #4e54c8, #8f94fb);
     padding: 6px 10px;
@@ -95,21 +65,12 @@ function injectHudStyles() {
     border-radius: 10px;
     padding: 6px 10px;
   }
-  .restriction .die {
-    width: 26px; height: 26px; object-fit: contain;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
-  }
-  .restriction .text {
-    font-size: 13px;
-  }
-  .chips {
-    display: flex; gap: 6px; flex-wrap: wrap; margin-left: 6px;
-  }
+  .restriction .die { width: 26px; height: 26px; object-fit: contain; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3)); }
+  .restriction .text { font-size: 13px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 6px; }
   .chip {
     font-size: 11px; padding: 3px 8px; border-radius: 999px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.18);
-    color: #fff;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); color: #fff;
   }
   .restriction.forest { box-shadow: inset 0 0 0 1px rgba(46,204,113,.35); }
   .restriction.plain  { box-shadow: inset 0 0 0 1px rgba(241,196,15,.35); }
@@ -122,55 +83,69 @@ function injectHudStyles() {
     display: inline-block; min-width: 22px; text-align: center;
     padding: 2px 6px; border-radius: 8px; margin: 0 3px;
     background: rgba(0,0,0,0.2); color: #fff; font-weight: 700;
-  }
-  `;
+  }`;
   document.head.appendChild(style);
 }
 
-function ensureHud() {
+let CACHED_USER_NAME = null;
+function getLoggedUserName() {
+  if (CACHED_USER_NAME) return CACHED_USER_NAME;
+  if (typeof window !== 'undefined') {
+    if (window.GAME_USER_NAME && String(window.GAME_USER_NAME).trim()) {
+      CACHED_USER_NAME = String(window.GAME_USER_NAME).trim(); return CACHED_USER_NAME;
+    }
+    if (window.GAME_USER && (window.GAME_USER.nombre || window.GAME_USER.name || window.GAME_USER.username)) {
+      CACHED_USER_NAME = String(window.GAME_USER.nombre || window.GAME_USER.name || window.GAME_USER.username).trim(); return CACHED_USER_NAME;
+    }
+  }
+  const body = document.body;
+  if (body) {
+    const candidate = body.getAttribute('data-user-name') || body.getAttribute('data-username') || body.getAttribute('data-nombre');
+    if (candidate && String(candidate).trim()) { CACHED_USER_NAME = String(candidate).trim(); return CACHED_USER_NAME; }
+  }
+  const metaNames = ['user-name','username','usuario-nombre','app:user-name'];
+  for (const n of metaNames) {
+    const m = document.querySelector(`meta[name="${n}"]`);
+    if (m?.content && String(m.content).trim()) { CACHED_USER_NAME = String(m.content).trim(); return CACHED_USER_NAME; }
+  }
+  CACHED_USER_NAME = 'Jugador 1';
+  return CACHED_USER_NAME;
+}
+
+function createHudIfMissing() {
   let hud = document.getElementById('hud');
   if (!hud) {
     hud = document.createElement('div');
     hud.id = 'hud';
-    hud.className = 'hud';
+    hud.className = 'hud hidden';
     const badge = document.createElement('div');
     badge.id = 'player-badge';
     badge.className = 'player-badge';
-    badge.textContent = 'Turno de Jugador 1';
-
+    badge.textContent = 'Turno';
     const restriction = document.createElement('div');
     restriction.id = 'restriction-banner';
     restriction.className = 'restriction neutral';
     const img = document.createElement('img');
-    img.className = 'die';
-    img.alt = 'dado';
-    img.draggable = false;
+    img.className = 'die'; img.alt = 'dado'; img.draggable = false;
     const span = document.createElement('span');
-    span.className = 'text';
-    span.textContent = 'Sin restricción';
+    span.className = 'text'; span.textContent = 'Sin restricción';
     const chips = document.createElement('div');
     chips.className = 'chips';
     restriction.appendChild(img);
     restriction.appendChild(span);
     restriction.appendChild(chips);
-
     hud.appendChild(badge);
     hud.appendChild(restriction);
     document.body.appendChild(hud);
   }
   return hud;
 }
+function showHud() { createHudIfMissing().classList.remove('hidden'); }
+function hideHud() { const hud = document.getElementById('hud'); if (hud) hud.classList.add('hidden'); }
 
 const DICE_FACE_ORDER = ['Bosque','Llanura','Cafetería','Baños','Recinto vacío','Zona libre de T‑Rex'];
-function diceIndexForFace(face) {
-  const i = DICE_FACE_ORDER.indexOf(face || '');
-  return i >= 0 ? (i + 1) : 1;
-}
-function diceSrcByIndex(idx) {
-  const n = Math.min(6, Math.max(1, Number(idx) || 1));
-  return `${IMG_BASE}dado/dado${n}.png`;
-}
-
+function diceIndexForFace(face) { const i = DICE_FACE_ORDER.indexOf(face || ''); return i >= 0 ? (i + 1) : 1; }
+function diceSrcByIndex(idx) { const n = Math.min(6, Math.max(1, Number(idx) || 1)); return `${IMG_BASE}dado/dado${n}.png`; }
 function restrictionFaceText(face) {
   switch (face) {
     case 'Bosque': return 'Solo recintos de Bosque (arriba)';
@@ -197,35 +172,28 @@ function currentRestrictionForPlayer(game, player) {
   const dice = game?.dice || {};
   if (!dice?.face) return null;
   if (Number(dice?.applies_to || 0) !== Number(player)) return null;
-  return {
-    face: dice.face,
-    text: restrictionFaceText(dice.face),
-    allowed: Array.isArray(dice.allowed_recintos) ? dice.allowed_recintos : [],
-    idx: diceIndexForFace(dice.face)
-  };
+  return { face: dice.face, text: restrictionFaceText(dice.face), allowed: Array.isArray(dice.allowed_recintos) ? dice.allowed_recintos : [], idx: diceIndexForFace(dice.face) };
 }
 function updatePlayerBadge(game) {
-  const badge = document.getElementById('player-badge') || ensureHud().querySelector('#player-badge');
+  const badge = document.getElementById('player-badge');
+  if (!badge) return;
   const cp = Number(game?.current_player || 1);
-  if (badge) badge.textContent = `Turno de Jugador ${cp}`;
+  const you = getLoggedUserName();
+  badge.textContent = cp === 1 ? `Tu turno: ${you}` : `Turno de Jugador 2`;
 }
 function updateRestrictionBanner(game, player) {
-  ensureHud();
   const banner = document.getElementById('restriction-banner');
   if (!banner) return;
   const img = banner.querySelector('.die');
   const text = banner.querySelector('.text');
   const chipsWrap = banner.querySelector('.chips');
-
   banner.className = 'restriction neutral';
   chipsWrap.innerHTML = '';
   if (img) img.src = diceSrcByIndex(1);
   if (text) text.textContent = 'Sin restricción';
   banner.title = '';
-
   const info = currentRestrictionForPlayer(game, player);
   if (!info) return;
-
   const cls = restrictionClassForFace(info.face);
   banner.classList.remove('neutral');
   banner.classList.add(cls);
@@ -249,6 +217,7 @@ function updateRestrictionBanner(game, player) {
   }
 }
 
+/* Sección: Mapeos y assets */
 const RECINTO_MAP = {
   1: "El Bosque de la Semejanza",
   2: "El Rio",
@@ -259,39 +228,18 @@ const RECINTO_MAP = {
   7: "La Isla Solitaria",
 };
 const NAME_TO_ZONE = Object.fromEntries(Object.entries(RECINTO_MAP).map(([id, name]) => [name, Number(id)]));
+function normalizeName(s) { return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
+const NAME_TO_ZONE_NORM = Object.fromEntries(Object.entries(RECINTO_MAP).map(([id, name]) => [normalizeName(name), Number(id)]));
 
-function normalizeName(s) {
-  return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-const NAME_TO_ZONE_NORM = Object.fromEntries(
-  Object.entries(RECINTO_MAP).map(([id, name]) => [normalizeName(name), Number(id)])
-);
-
-const IMG_BASE = (() => {
-  try { return new URL('../imgs/', document.currentScript.src).href; }
-  catch { return '/assets/imgs/'; }
-})();
-
+const IMG_BASE = (() => { try { return new URL('../imgs/', document.currentScript.src).href; } catch { return '/assets/imgs/'; } })();
 const API_URL = new URL(window.location.href);
-
 const USER_ID = (typeof window !== 'undefined' && window.GAME_USER_ID) ? window.GAME_USER_ID : 0;
 const STORAGE_KEY = 'drafto_game_id';
 let gameId = Number(localStorage.getItem(STORAGE_KEY) || 0);
-
 let CURRENT_GAME = null;
 
 const SPECIES_IMG = Object.create(null);
-const SPECIES_ALIAS = {
-  "Rosado": "rosa",
-  "Rosa": "rosa",
-  "Cyan": "cyan",
-  "Azul": "azul",
-  "Rojo": "rojo",
-  "Naranja": "naranja",
-  "Verde": "verde",
-  "T-Rex": "trex"
-};
-
+const SPECIES_ALIAS = { "Rosado": "rosa", "Rosa": "rosa", "Cyan": "cyan", "Azul": "azul", "Rojo": "rojo", "Naranja": "naranja", "Verde": "verde", "T-Rex": "trex" };
 function imageForTipo(tipo) {
   if (!tipo) return `${IMG_BASE}minis/placeholder.png`;
   if (SPECIES_IMG[tipo]) return SPECIES_IMG[tipo];
@@ -300,12 +248,11 @@ function imageForTipo(tipo) {
 }
 function updateSpeciesMapFromHand(hand) {
   (hand || []).forEach(d => {
-    if (d?.tipo && d?.imagen && !SPECIES_IMG[d.tipo]) {
-      SPECIES_IMG[d.tipo] = d.imagen;
-    }
+    if (d?.tipo && d?.imagen && !SPECIES_IMG[d.tipo]) SPECIES_IMG[d.tipo] = d.imagen;
   });
 }
 
+/* Sección: Hidratación tablero */
 function clearBoardSlotsForPlayer(player) {
   const boardEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
   if (!boardEl) return;
@@ -314,31 +261,22 @@ function clearBoardSlotsForPlayer(player) {
     while (s.firstChild) s.removeChild(s.firstChild);
   });
 }
-
 function hydrateFromState(game) {
   if (!game?.boards) return;
   clearBoardSlotsForPlayer(1);
   clearBoardSlotsForPlayer(2);
-
   for (const p of [1, 2]) {
     const boards = game.boards?.[p] || {};
     const playerEl = document.querySelector(`.contenedor-juego[data-player="${p}"]`);
     if (!playerEl) continue;
-
     for (const [recintoName, dinos] of Object.entries(boards)) {
       let zoneId = NAME_TO_ZONE[recintoName];
       if (!zoneId) zoneId = NAME_TO_ZONE_NORM[normalizeName(recintoName)];
-      if (!zoneId) {
-        console.warn('Recinto no mapeado (se omite en hidratación):', recintoName);
-        continue;
-      }
-
+      if (!zoneId) continue;
       const zoneEl = playerEl.querySelector(`.dropzone[data-zone-id="${String(zoneId)}"]`);
       if (!zoneEl) continue;
-
       const slots = Array.from(zoneEl.querySelectorAll('.slot'));
       const slotIterator = (zoneId === 2) ? [...slots].reverse() : slots;
-
       for (const species of (dinos || [])) {
         const targetSlot = slotIterator.find(s => !s.classList.contains('filled'));
         if (!targetSlot) break;
@@ -354,25 +292,21 @@ function hydrateFromState(game) {
   }
 }
 
+/* Sección: Dado */
 function updateDiceUI(game) {
   const d1 = document.getElementById('dice-1');
   const d2 = document.getElementById('dice-2');
   if (!d1 || !d2) return;
-
   const face = game?.dice?.face || null;
   const appliesTo = Number(game?.dice?.applies_to || 0);
   const idx = diceIndexForFace(face);
-
   d1.src = diceSrcByIndex(idx);
   d2.src = diceSrcByIndex(idx);
-
   d1.title = face ? `Dado: ${face}` : 'Dado';
   d2.title = face ? `Dado: ${face}` : 'Dado';
-
   d1.classList.toggle('inactive', appliesTo !== 1 || !face);
   d2.classList.toggle('inactive', appliesTo !== 2 || !face);
 }
-
 let isDiceRolling = false;
 function startDiceSpin(el) {
   if (!el) return () => {};
@@ -383,14 +317,12 @@ function startDiceSpin(el) {
     ticks++;
     const randIdx = Math.floor(Math.random() * 6) + 1;
     el.src = diceSrcByIndex(randIdx);
-    if (ticks >= maxTicks) {
-      clearInterval(timer);
-      el.classList.remove('spin');
-    }
+    if (ticks >= maxTicks) { clearInterval(timer); el.classList.remove('spin'); }
   }, 80);
   return () => { clearInterval(timer); el.classList.remove('spin'); };
 }
 
+/* Sección: Restricciones y zonas habilitadas */
 function applyDiceLocksForPlayer(game, player) {
   const msg = document.getElementById('mensaje');
   const dice = game?.dice || {};
@@ -398,24 +330,15 @@ function applyDiceLocksForPlayer(game, player) {
   const face = dice?.face || null;
   const allowedNames = Array.isArray(dice?.allowed_recintos) ? dice.allowed_recintos : null;
   const turnRolled = !!dice?.turn_rolled;
-
   document.querySelectorAll(`.contenedor-juego[data-player="${player}"] .dropzone`).forEach(z => {
-    z.classList.remove('disabled');
-    z.removeAttribute('title');
+    z.classList.remove('disabled'); z.removeAttribute('title');
   });
-
   if (!turnRolled) {
     const playerEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
-    if (playerEl) {
-      playerEl.querySelectorAll('.dropzone').forEach(z => {
-        z.classList.add('disabled');
-        z.title = 'Primero tirá el dado';
-      });
-    }
+    if (playerEl) playerEl.querySelectorAll('.dropzone').forEach(z => { z.classList.add('disabled'); z.title = 'Primero tirá el dado'; });
     if (msg) msg.textContent = 'Tirá el dado antes de colocar.';
     return;
   }
-
   if (face && appliesTo === player && allowedNames) {
     const allowedSet = new Set(allowedNames);
     const playerEl = document.querySelector(`.contenedor-juego[data-player="${player}"]`);
@@ -423,46 +346,31 @@ function applyDiceLocksForPlayer(game, player) {
       playerEl.querySelectorAll('.dropzone').forEach(z => {
         const zoneId = Number(z.dataset.zoneId);
         const recintoName = RECINTO_MAP[zoneId];
-        if (!allowedSet.has(recintoName)) {
-          z.classList.add('disabled');
-          z.title = `Restringido por dado: ${face}`;
-        }
+        if (!allowedSet.has(recintoName)) { z.classList.add('disabled'); z.title = `Restringido por dado: ${face}`; }
       });
     }
     if (msg) msg.textContent = `Restricción por dado: ${face}`;
     return;
   }
-
   if (msg) msg.textContent = '';
 }
 
+/* Sección: API */
 async function api(action, params = {}, options = {}) {
   const { ignoreGameId = false } = options;
   const isGet = ['init','get_hand','state','load','roll'].includes(action);
   const base = { action, user_id: USER_ID };
   if (gameId && !ignoreGameId) base.game_id = gameId;
-
   try {
     if (isGet) {
       const url = new URL(API_URL);
       Object.entries({ ...base, ...params }).forEach(([k, v]) => url.searchParams.set(k, v));
-      const res = await fetch(url.toString(), {
-        method: 'GET',
-        headers: { 'Accept': 'application/json' },
-        credentials: 'include',
-        cache: 'no-store',
-      });
+      const res = await fetch(url.toString(), { method: 'GET', headers: { 'Accept': 'application/json' }, credentials: 'include', cache: 'no-store' });
       const text = await res.text();
       try { return JSON.parse(text); } catch { return { success: false, code: res.status, message: 'Respuesta inválida del servidor', raw: text }; }
     } else {
       const body = new URLSearchParams({ ...base, ...params });
-      const res = await fetch(API_URL.toString(), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' },
-        body,
-        credentials: 'include',
-        cache: 'no-store',
-      });
+      const res = await fetch(API_URL.toString(), { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8', 'Accept': 'application/json' }, body, credentials: 'include', cache: 'no-store' });
       const text = await res.text();
       try { return JSON.parse(text); } catch { return { success: false, code: res.status, message: 'Respuesta inválida del servidor', raw: text }; }
     }
@@ -471,7 +379,6 @@ async function api(action, params = {}, options = {}) {
     return { success: false, code: -1, message: 'Error de red' };
   }
 }
-
 async function syncStateAndRefresh() {
   const s = await api('state');
   if (s?.success && s.data?.game) {
@@ -485,21 +392,16 @@ async function syncStateAndRefresh() {
   return s;
 }
 
+/* Sección: Drag & Drop */
 function makeDraggable(img) {
   img.setAttribute('draggable', 'true');
   if (!img.dataset.dragId) img.dataset.dragId = 'dino-' + (Date.now() + Math.random()).toString(36);
   img.addEventListener('dragstart', (e) => {
-    const payload = JSON.stringify({
-      src: e.currentTarget.src,
-      id: e.currentTarget.dataset.dragId,
-      tipo: e.currentTarget.dataset?.tipo || null,
-      gameId: e.currentTarget.dataset?.gameId || null,
-    });
+    const payload = JSON.stringify({ src: e.currentTarget.src, id: e.currentTarget.dataset.dragId, tipo: e.currentTarget.dataset?.tipo || null, gameId: e.currentTarget.dataset?.gameId || null });
     e.dataTransfer.setData('text/plain', payload);
     e.dataTransfer.effectAllowed = 'copyMove';
   });
 }
-
 function renderBandejaFor(player, hand) {
   updateSpeciesMapFromHand(hand);
   const cont = document.querySelector(`.contenedor-juego[data-player="${player}"] .bandeja .dinosaurios`);
@@ -517,6 +419,7 @@ function renderBandejaFor(player, hand) {
   });
 }
 
+/* Sección: Zonas del tablero */
 const ZONAS = [
   { id: 1, nombre: 'Bosque Semejanza', x: 0,  y: 2,  w: 38, h: 32, slots: 6, cols: 6 },
   { id: 3, nombre: 'Trío Frondoso',    x: 10, y: 37, w: 23, h: 18, slots: 3, cols: 3 },
@@ -526,11 +429,9 @@ const ZONAS = [
   { id: 7, nombre: 'Isla Solitaria',   x: 68, y: 78, w: 20, h: 22, slots: 1, cols: 1 },
   { id: 2, nombre: 'Río',              x: 50, y: 0,  w: 8,  h: 100, slots: 8, cols: 1 }, 
 ];
-
 function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
   if (!tablero) return;
   tablero.querySelectorAll('.dropzone').forEach(z => z.remove());
-
   ZONAS.forEach(z => {
     const el = document.createElement('div');
     el.className = 'dropzone';
@@ -541,13 +442,11 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
     el.dataset.zoneId = String(z.id);
     el.dataset.player = String(player);
     el.dataset.recintoName = RECINTO_MAP[z.id] || '';
-
     const slotsWrap = document.createElement('div');
     slotsWrap.className = 'slots';
     const cols = Math.max(1, (z.cols ?? z.slots ?? 1));
     const count = Math.max(1, (z.slots ?? cols));
     slotsWrap.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-
     for (let i = 1; i <= count; i++) {
       const s = document.createElement('div');
       s.className = 'slot';
@@ -555,7 +454,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
       slotsWrap.appendChild(s);
     }
     el.appendChild(slotsWrap);
-
     el.addEventListener('dragover', (e) => {
       e.preventDefault();
       const boardPlayer = Number(el.closest('.contenedor-juego')?.dataset.player || player);
@@ -564,58 +462,28 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
       el.classList.add('is-over');
       if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
     });
-
     el.addEventListener('dragleave', () => el.classList.remove('is-over'));
-
     el.addEventListener('drop', async (e) => {
       e.preventDefault();
       el.classList.remove('is-over');
-
       const currentPlayer = getCurrentPlayer();
       const boardPlayer = Number(el.closest('.contenedor-juego')?.dataset.player || player);
-      if (boardPlayer !== currentPlayer) {
-        alert('No es tu turno');
-        return;
-      }
-
-      if (!CURRENT_GAME?.dice?.turn_rolled) {
-        alert('Primero tirá el dado');
-        return;
-      }
-
-      if (el.classList.contains('disabled')) {
-        const face = CURRENT_GAME?.dice?.face || 'dado';
-        alert(el.title || `Movimiento no permitido (${face})`);
-        return;
-      }
-
+      if (boardPlayer !== currentPlayer) { alert('No es tu turno'); return; }
+      if (!CURRENT_GAME?.dice?.turn_rolled) { alert('Primero tirá el dado'); return; }
+      if (el.classList.contains('disabled')) { const face = CURRENT_GAME?.dice?.face || 'dado'; alert(el.title || `Movimiento no permitido (${face})`); return; }
       const raw = e.dataTransfer.getData('text/plain');
       if (!raw) return;
-
       let data;
       try { data = JSON.parse(raw); } catch { data = { src: raw, id: null, tipo: null, gameId: null }; }
-
       const dinoId = data.gameId;
-      if (!dinoId) {
-        alert('Usa los dinosaurios de la bandeja.');
-        return;
-      }
-
+      if (!dinoId) { alert('Usa los dinosaurios de la bandeja.'); return; }
       const zoneId = Number(el.dataset.zoneId);
       const recintoName = RECINTO_MAP[zoneId];
-      if (!recintoName) {
-        alert('Recinto inválido');
-        return;
-      }
-
+      if (!recintoName) { alert('Recinto inválido'); return; }
       let freeSlot;
-      if (String(zoneId) === '2') {
-        freeSlot = Array.from(el.querySelectorAll('.slot')).reverse().find(s => !s.classList.contains('filled'));
-      } else {
-        freeSlot = el.querySelector('.slot:not(.filled)');
-      }
+      if (String(zoneId) === '2') freeSlot = Array.from(el.querySelectorAll('.slot')).reverse().find(s => !s.classList.contains('filled'));
+      else freeSlot = el.querySelector('.slot:not(.filled)');
       if (!freeSlot) return;
-
       try {
         const r = await api('place', { player: currentPlayer, dino_id: dinoId, recinto: recintoName });
         if (!r?.success) {
@@ -632,7 +500,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
           }
           return;
         }
-
         const placed = r.data?.placed_dino;
         if (placed) {
           const img = document.createElement('img');
@@ -643,7 +510,6 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
           freeSlot.classList.add('filled');
           freeSlot.appendChild(img);
         }
-
         renderBandejaFor(currentPlayer, r.data?.new_hand || []);
         setScoresFrom(r.data);
         if (r.data?.game) {
@@ -655,12 +521,10 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
         } else {
           await syncStateAndRefresh();
         }
-
         if (r.data?.game_id && !gameId) {
           gameId = Number(r.data.game_id);
           localStorage.setItem(STORAGE_KEY, String(gameId));
         }
-
         const nextPlayer = Number(r?.data?.game?.current_player || (currentPlayer === 1 ? 2 : 1));
         try {
           const handNext = await api('get_hand', { player: nextPlayer });
@@ -676,9 +540,7 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
             }
           }
         } catch {}
-
         showPlayerCb(nextPlayer);
-
         if (r.data?.finished) alert('Partida finalizada');
       } catch (err) {
         console.error(err);
@@ -686,21 +548,17 @@ function renderZonasFor(tablero, player, getCurrentPlayer, showPlayerCb) {
         await syncStateAndRefresh();
       }
     });
-
     tablero.appendChild(el);
   });
 }
 
+/* Sección: Bootstrap página */
 document.addEventListener('DOMContentLoaded', () => {
   injectHudStyles();
-  ensureHud();
+  hideHud();
 
   let currentPlayer = 1;
-
-  function getCurrentPlayer() {
-    return currentPlayer;
-  }
-
+  function getCurrentPlayer() { return currentPlayer; }
   function showPlayer(p) {
     document.querySelectorAll('.contenedor-juego').forEach(el => {
       const isCurrent = Number(el.dataset.player) === p;
@@ -709,16 +567,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dice-img').forEach(img => {
       img.classList.toggle('inactive', Number(img.dataset.player) !== p);
     });
-
     currentPlayer = p;
     if (CURRENT_GAME) {
       applyDiceLocksForPlayer(CURRENT_GAME, currentPlayer);
       updateDiceUI(CURRENT_GAME);
       updatePlayerBadge(CURRENT_GAME);
       updateRestrictionBanner(CURRENT_GAME, currentPlayer);
-    } else {
-      updatePlayerBadge({ current_player: currentPlayer });
-      updateRestrictionBanner(null, currentPlayer);
     }
   }
 
@@ -732,16 +586,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const pantalla = document.getElementById('pantalla-inicio');
   const startErr = document.getElementById('start-error');
 
-  function clearError() {
-    if (!startErr) return;
-    startErr.textContent = '';
-    startErr.classList.add('hidden');
-  }
-  function showError(msg) {
-    if (!startErr) return;
-    startErr.textContent = msg;
-    startErr.classList.remove('hidden');
-  }
+  function clearError() { if (!startErr) return; startErr.textContent = ''; startErr.classList.add('hidden'); }
+  function showError(msg) { if (!startErr) return; startErr.textContent = msg; startErr.classList.remove('hidden'); }
 
   async function cargarManosYScores() {
     for (const p of [1, 2]) {
@@ -763,25 +609,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function resumeGame() {
     clearError();
-    if (!USER_ID) {
-      showError('Debes iniciar sesión para reanudar una partida.');
-      return;
-    }
-    if (!gameId) {
-      showError('No hay una partida guardada para reanudar.');
-      return;
-    }
+    if (!USER_ID) { showError('Debes iniciar sesión para reanudar una partida.'); return; }
+    if (!gameId) { showError('No hay una partida guardada para reanudar.'); return; }
     try {
       const r = await api('load');
-      if (!r?.success) {
-        showError(r?.message || 'No se pudo reanudar. Podés iniciar una partida nueva.');
-        return;
-      }
+      if (!r?.success) { showError(r?.message || 'No se pudo reanudar. Podés iniciar una partida nueva.'); return; }
       if (r.data?.game) CURRENT_GAME = r.data.game;
       pantalla?.classList.add('hidden');
+      showHud();
       showPlayer(1);
       setScoresFrom(r.data);
-
       if (CURRENT_GAME) {
         hydrateFromState(CURRENT_GAME);
         updateDiceUI(CURRENT_GAME);
@@ -799,24 +636,17 @@ document.addEventListener('DOMContentLoaded', () => {
     clearError();
     localStorage.removeItem(STORAGE_KEY);
     gameId = 0;
-
     const btnNuevaEl = document.getElementById('btn-nueva');
     if (btnNuevaEl) { btnNuevaEl.disabled = true; btnNuevaEl.textContent = 'Iniciando...'; }
-
     try {
       const initRes = await api('init', {}, { ignoreGameId: true });
       if (!initRes?.success) throw new Error(initRes?.message || 'Error al iniciar');
-
       const newId = Number(initRes.data?.game_id || 0);
-      if (newId) {
-        gameId = newId;
-        localStorage.setItem(STORAGE_KEY, String(gameId));
-      }
-
+      if (newId) { gameId = newId; localStorage.setItem(STORAGE_KEY, String(gameId)); }
       if (initRes.data?.game) CURRENT_GAME = initRes.data.game;
       pantalla?.classList.add('hidden');
+      showHud();
       showPlayer(1);
-
       await cargarManosYScores();
     } catch (e) {
       console.error(e);
@@ -829,11 +659,9 @@ document.addEventListener('DOMContentLoaded', () => {
   async function onDiceClick(clickedEl) {
     if (isDiceRolling) return;
     if (!CURRENT_GAME) return;
-
     isDiceRolling = true;
     mostrarMensaje('Tirando dado...');
     const stop = startDiceSpin(clickedEl);
-
     try {
       const r = await api('roll', {});
       stop();
@@ -852,7 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (r.data?.game) CURRENT_GAME = r.data.game;
-
       updateDiceUI(CURRENT_GAME);
       const cp = Number(CURRENT_GAME.current_player || 1);
       applyDiceLocksForPlayer(CURRENT_GAME, cp);
@@ -879,14 +706,4 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-nueva')?.addEventListener('click', startNewGame);
   document.getElementById('dice-1')?.addEventListener('click', (e) => onDiceClick(e.currentTarget));
   document.getElementById('dice-2')?.addEventListener('click', (e) => onDiceClick(e.currentTarget));
-
 });
-
-function actualizarMostrar(seccion, color) {
-  const btn = document.getElementById(`btn${seccion}`);
-  if (!btn) return;
-  const img = document.createElement('img');
-  img.src = `${IMG_BASE}minis/${dinosaurios[color]}.png`;
-  img.classList.add('mini-dino');
-  btn.appendChild(img);
-}

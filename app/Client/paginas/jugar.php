@@ -9,9 +9,14 @@ if (isset($_REQUEST['action'])) {
 // Usuario logueado
 if (session_status() === PHP_SESSION_NONE) session_start();
 $userId = 0;
+$userName = '';
 if (isset($_SESSION['usuario']['id'])) $userId = (int)$_SESSION['usuario']['id'];
 elseif (isset($_SESSION['usuario_id'])) $userId = (int)$_SESSION['usuario_id'];
 elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
+
+if (isset($_SESSION['usuario']['nombre'])) $userName = (string)$_SESSION['usuario']['nombre'];
+elseif (isset($_SESSION['user']['nombre'])) $userName = (string)$_SESSION['user']['nombre'];
+elseif (isset($_SESSION['user']['name'])) $userName = (string)$_SESSION['user']['name'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -22,10 +27,11 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
   <link rel="stylesheet" href="<?= asset('css/styles.css') ?>">
   <script>
     window.GAME_USER_ID = <?= (int)$userId ?>;
+    window.GAME_USER_NAME = <?= json_encode($userName ?: 'Jugador 1', JSON_UNESCAPED_UNICODE) ?>;
   </script>
   <script src="<?= asset('js/main.js') ?>" defer></script>
 </head>
-<body>
+<body <?= $userName ? 'data-user-name="'.htmlspecialchars($userName, ENT_QUOTES).'"' : '' ?>>
 <?php view_partial('header_simple'); ?>
 
 <section id="pantalla-inicio" class="pantalla-inicio">
@@ -47,7 +53,10 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
 
 <div class="juego-multi">
   <div class="contenedor-juego hidden" data-player="1">
-    <h3>Jugador 1 · Puntos: <span id="score-1">0</span></h3>
+    <h3>
+      <span id="player1-label"><?= htmlspecialchars($userName ?: 'Jugador 1', ENT_QUOTES, 'UTF-8') ?></span>
+      · Puntos: <span id="score-1">0</span>
+    </h3>
     <div class="tablero" id="tablero-1">
       <img src="<?= asset('imgs/juego.jpg') ?>" alt="Tablero" class="imagen-tablero">
     </div>
@@ -74,7 +83,6 @@ elseif (isset($_SESSION['user']['id'])) $userId = (int)$_SESSION['user']['id'];
     </div>
   </div>
 </div>
-
 <?php view_partial('footer'); ?>
 </body>
 </html>

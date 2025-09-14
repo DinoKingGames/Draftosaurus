@@ -175,6 +175,42 @@ span {
     font-weight: 400;
 }
 
+
+.header-simple .barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+.header-simple .logo-contenedor h1 {
+  white-space: nowrap; 
+}
+
+@media (min-width: 768px) {
+  .header-simple .navegacion {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: nowrap; 
+  }
+  .header-simple .navegacion a {
+    display: inline-block; 
+    margin: 0;
+  }
+  .header-simple .user-badge {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    white-space: nowrap; 
+  }
+  .header-simple .user-badge .user-name {
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+  }
+}
+
 /** Navegacion **/
 
 .navegacion a {
@@ -1153,3 +1189,215 @@ img{
   opacity: 0.5;
   filter: grayscale(0.6);
 }
+
+/* Menu Hamburguesa */
+.header-simple .barra,
+.site-header .barra {
+  position: relative;
+}
+
+.nav-toggle {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hamburger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.hamburger span {
+  display: block;
+  width: 28px;
+  height: 3.5px;
+  background: #fff;
+  border-radius: 3px;
+  margin: 5px 0;
+  transition: transform .2s ease, opacity .2s ease, background-color .2s ease;
+}
+
+.header-simple .hamburger span { background: #fff; }
+.site-header .hamburger span { background: #fff; }
+
+@media (min-width: 768px) {
+  .site-header .navegacion {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: nowrap;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* Centrado y layout móvil */
+  .header-simple .barra,
+  .site-header .barra {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    row-gap: 6px;
+  }
+
+  .header-simple .logo-contenedor,
+  .site-header .logo-contenedor {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .header-simple .logo-contenedor h1,
+  .site-header .logo-contenedor h1 {
+    display: none;
+  }
+
+  .hamburger { 
+    display: inline-flex;
+    justify-self: center;
+    margin-top: 4px;
+  }
+
+  .header-simple .navegacion,
+  .site-header .navegacion {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    padding: 10px 12px;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+  }
+
+  .header-simple .navegacion { background: #000; }
+  .site-header .navegacion { background: rgba(0,0,0,0.9); }
+
+  .header-simple .nav-toggle:checked ~ .navegacion,
+  .site-header .nav-toggle:checked ~ .navegacion {
+    display: flex;
+  }
+
+  /* Animación a “X” */
+  .header-simple .nav-toggle:checked + .hamburger span:nth-child(1),
+  .site-header .nav-toggle:checked + .hamburger span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+  .header-simple .nav-toggle:checked + .hamburger span:nth-child(2),
+  .site-header .nav-toggle:checked + .hamburger span:nth-child(2) {
+    opacity: 0;
+  }
+  .header-simple .nav-toggle:checked + .hamburger span:nth-child(3),
+  .site-header .nav-toggle:checked + .hamburger span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+}
+
+/* Dropdown cuenta */
+.navegacion { position: relative; }
+.nav-account { position: relative; display: inline-block; }
+
+.account-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+}
+.account-toggle .user-badge { background: transparent; border: 0; padding: 0; margin: 0; color: inherit; }
+
+.account-menu {
+  min-width: 220px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,.12);
+}
+
+/* Ítems uniformes y con separación */
+.account-menu a {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin: 0;
+  border-radius: 8px;
+  color: #0f172a;
+  background: transparent;
+  border: 0;
+  box-sizing: border-box;
+}
+.account-menu a + a { margin-top: 6px; }
+.account-menu a:hover { background: #f1f5f9; }
+
+/* Reset de estilos heredados de botones dentro del dropdown */
+.account-menu a.btn-auth,
+.account-menu a.btn-admin,
+.account-menu a.btn-logout {
+  background: transparent !important;
+  border: 0 !important;
+  margin: 0 !important;
+  color: inherit !important;
+}
+
+/* Desktop: hover estable sin "gap" entre toggle y menú */
+@media (min-width: 768px) {
+  .nav-account { position: relative; }
+  .nav-account .account-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    transform: translateY(8px);
+    display: none;
+    z-index: 1001;
+  }
+  .nav-account:hover .account-menu,
+  .nav-account:focus-within .account-menu { display: block; }
+  .nav-account::after {
+    content: "";
+    position: absolute;
+    left: 0; right: 0;
+    top: 100%;
+    height: 10px; /* puente invisible para que no se cierre al pasar el mouse */
+  }
+}
+
+/* Mobile: desplegado dentro del menú hamburguesa */
+@media (max-width: 768px) {
+  .nav-account { width: 100%; }
+  .account-toggle { display: none; }
+  .account-menu {
+    display: block;
+    position: static;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+  .account-menu a {
+    color: #fff;
+    padding: 10px 0;
+  }
+}
+
+/* Afinar estilos según header */
+.header-simple .account-toggle { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.18); }
+.site-header .account-toggle { background: rgba(0,0,0,0.25); border-color: rgba(255,255,255,0.30); }

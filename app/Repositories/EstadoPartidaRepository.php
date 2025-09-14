@@ -1,8 +1,5 @@
 <?php
 
-// Repositorio de persistencia (mysqli)
-// Tablas usadas: partida, jugador_partida, colocacion_dinosaurios
-
 class GameResume {
     private mysqli $db;
 
