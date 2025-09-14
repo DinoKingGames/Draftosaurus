@@ -56,6 +56,16 @@ CREATE TABLE IF NOT EXISTS puntuacion (
     FOREIGN KEY (jugador_partida_id) REFERENCES jugador_partida(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS historial_roles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  rol_anterior ENUM('user','admin','superadmin') NOT NULL,
+  rol_nuevo ENUM('user','admin','superadmin') NOT NULL,
+  changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_hist_user (usuario_id, changed_at),
+  CONSTRAINT fk_hist_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 INSERT INTO usuarios (nombre, email, contrasena, rol) VALUES ('admin', 'dinoking.gamestudios@gmail.com', '$2y$10$IH7isEsgqKUgVG.R03qy4uoyOc1EQkQVgOLbw5StkWjk.lzbyP.5K', 'superadmin');
 INSERT INTO usuarios(nombre, email, contrasena, rol) VALUES ('Gabriel', 'gabriel.gs@gmail.com', '$2y$10$6LvFG1WGNuCu0GvfrM8Siu95XL6yq2FoXMmE5Qs1cqB.6j56vAQRe', 'admin'); 
 INSERT INTO usuarios(nombre, email, contrasena, rol) VALUES ('Fico', 'ficocapo3@gmail.com', '$2y$10$GdXws2Uj.sGUSKdVHHpJ.erL55EMMK6JLxuNi3jIb7eCB3o9Ux9Ii', 'admin');
