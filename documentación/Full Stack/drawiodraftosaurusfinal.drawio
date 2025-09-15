@@ -1,0 +1,222 @@
+﻿<mxfile host="65bd71144e">
+    <diagram name="Diagrama-ER-Dinosaurios" id="er-diagram-dinos">
+        <mxGraphModel dx="3232" dy="960" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1200" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="recinto_config" value="&lt;span style=&quot;background-color: rgb(0, 0, 0);&quot;&gt;RECINTO_CONFIG&lt;br&gt;(Estática)&lt;br&gt;&lt;br&gt;recinto_id (PK)&lt;br&gt;tipo_recinto&lt;br&gt;nombre&lt;br&gt;capacidad_maxima&lt;br&gt;reglas_puntaje&lt;/span&gt;" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;fillColor=#f8f8f8;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1320" y="390" width="180" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="usuarios" value="USUARIOS&lt;br&gt;&lt;br&gt;id (PK)&lt;br&gt;nombre (UK)&lt;br&gt;email (UK)&lt;br&gt;contrasena&lt;br&gt;fecha_creacion&lt;br&gt;ultimo_acceso&lt;br&gt;avatar_url" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="50" y="50" width="200" height="180" as="geometry"/>
+                </mxCell>
+                <mxCell id="juego" value="JUEGO&lt;br&gt;&lt;br&gt;juego_id (PK)&lt;br&gt;estado&lt;br&gt;turno_actual&lt;br&gt;ronda_actual&lt;br&gt;restriccion_dado&lt;br&gt;jugador1_nombre&lt;br&gt;jugador2_nombre&lt;br&gt;jugador1_id_usuario (FK)&lt;br&gt;player2_id_usuario (FK)&lt;br&gt;jugador1_puntaje&lt;br&gt;jugador2_puntaje" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="450" y="200" width="220" height="220" as="geometry"/>
+                </mxCell>
+                <mxCell id="dinosaurios_jugador" value="DINOSAURIOS_JUGADOR&lt;br&gt;&lt;br&gt;id (PK)&lt;br&gt;juego_id (FK)&lt;br&gt;posicion_jugador&lt;br&gt;especies&lt;br&gt;ronda_numero" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="940" y="45" width="200" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="posicion" value="POSICION&lt;br&gt;&lt;br&gt;posicion_id (PK)&lt;br&gt;juego_id (FK)&lt;br&gt;posicion_jugador&lt;br&gt;posicion&lt;br&gt;ranura_indicie&lt;br&gt;especies" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="800" y="250" width="200" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="puntuacion_final" value="PUNTUACION_FINAL&lt;br&gt;&lt;br&gt;juego_id (PK/FK)&lt;br&gt;jugador_ranura (PK)&lt;br&gt;bosque_puntos&lt;br&gt;prado_puntos&lt;br&gt;pradera_puntos&lt;br&gt;trio_puntos&lt;br&gt;rey_selva_puntos&lt;br&gt;puntos_totales" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="450" y="500" width="220" height="160" as="geometry"/>
+                </mxCell>
+                <mxCell id="historial_juegos" value="HISTORIAL_JUEGOS&lt;br&gt;&lt;br&gt;historial_id (PK)&lt;br&gt;juego_id (FK)&lt;br&gt;turno_numero&lt;br&gt;ronda_numero&lt;br&gt;accion_tipo" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="150" y="500" width="200" height="120" as="geometry"/>
+                </mxCell>
+                <mxCell id="config_juego" value="&lt;span style=&quot;background-color: rgb(0, 0, 0);&quot;&gt;CONFIG_JUEGO&lt;br&gt;(Estática)&lt;br&gt;&lt;br&gt;config_id (PK)&lt;br&gt;config_nombre&lt;br&gt;config_valor&lt;br&gt;descripcion&lt;/span&gt;" style="whiteSpace=wrap;html=1;align=center;verticalAlign=top;fillColor=#f8f8f8;strokeColor=#000000;strokeWidth=1;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1320" y="540" width="180" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="participa_j1" value="PARTICIPA_J1" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="125" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="participa_j2" value="PARTICIPA_J2" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="270" y="240" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="contiene_dinosaurios" value="CONTIENE&lt;br&gt;DINOSAURIOS" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="105" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="tiene_posiciones" value="TIENE&lt;br&gt;POSICIONES" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="290" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="genera_puntuacion" value="GENERA&lt;br&gt;PUNTUACION" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="510" y="440" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="registra_historial" value="REGISTRA&lt;br&gt;HISTORIAL" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="440" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="define_especie" value="DEFINE&lt;br&gt;ESPECIE" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="1170" y="80" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="rol_usuario" value="ROL&lt;br&gt;" style="shape=triangle;perimeter=trianglePerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="270" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="estado_juego" value="ESTADO" style="shape=triangle;perimeter=trianglePerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=9;fontStyle=1;" parent="1" vertex="1">
+                    <mxGeometry x="530" y="120" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="especies_enum" value="ESPECIES&lt;br&gt;" style="shape=triangle;perimeter=trianglePerimeter;whiteSpace=wrap;html=1;align=center;strokeColor=#000000;strokeWidth=1;fontSize=9;fontStyle=1;rotation=0;" parent="1" vertex="1">
+                    <mxGeometry x="1000" y="410" width="60" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn1" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="usuarios" target="participa_j1" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn2" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="usuarios" target="participa_j2" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn3" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="participa_j1" target="juego" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn4" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="participa_j2" target="juego" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn5" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="juego" target="contiene_dinosaurios" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn6" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="juego" target="tiene_posiciones" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn7" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="juego" target="genera_puntuacion" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn8" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="juego" target="registra_historial" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn9" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="contiene_dinosaurios" target="dinosaurios_jugador" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn10" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="tiene_posiciones" target="posicion" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn11" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="genera_puntuacion" target="puntuacion_final" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn12" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="registra_historial" target="historial_juegos" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn13" value="1" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;exitX=-0.02;exitY=0.345;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="24" target="define_especie" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1210" y="110" as="sourcePoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn14" value="N" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="define_especie" target="dinosaurios_jugador" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn15" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="usuarios" target="rol_usuario" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn16" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="juego" target="estado_juego" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn17" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#000000;" parent="1" source="dinosaurios_jugador" target="especies_enum" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="2" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;Tablas Estáticas, porque no necesitan relacionarse y son aspectos que no cambian&lt;/span&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+                    <mxGeometry x="1270" y="320" width="260" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="&lt;span style=&quot;background-color: rgb(26, 26, 26);&quot;&gt;user&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="-10" y="400" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="&lt;span style=&quot;background-color: rgb(26, 26, 26);&quot;&gt;admin&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="100" y="400" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;span style=&quot;background-color: rgb(26, 26, 26);&quot;&gt;superadmin&lt;br&gt;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="230" y="400" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="T_rex" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="820" y="580" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="Bronquiosaurus" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="970" y="580" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="Triceratops" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="1100" y="580" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="Velociraptor" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="840" y="630" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="Chango" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="1090" y="630" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="Stegosaurus" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;" vertex="1" parent="1">
+                    <mxGeometry x="940" y="630" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="14" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="8" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="850" y="490" as="sourcePoint"/>
+                        <mxPoint x="1010" y="490" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="780" y="519.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="880" y="455.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="16" value="" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="12" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="790" y="529.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="890" y="465.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="" style="endArrow=none;html=1;rounded=0;exitX=1;exitY=0;exitDx=0;exitDy=0;entryX=-0.002;entryY=1.021;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="11" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="800" y="539.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="900" y="475.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="18" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.307;entryY=0.843;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="9" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="810" y="549.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="910" y="485.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="19" value="" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.2;entryY=0.95;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="13" target="especies_enum">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="820" y="559.9999999999999" as="sourcePoint"/>
+                        <mxPoint x="920" y="495.0000000000001" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=-0.033;entryY=1.011;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="5" target="rol_usuario">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="180" y="370" as="sourcePoint"/>
+                        <mxPoint x="340" y="370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="22" value="" style="endArrow=none;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="6" target="rol_usuario">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="180" y="370" as="sourcePoint"/>
+                        <mxPoint x="340" y="370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="23" value="" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0;exitDx=0;exitDy=0;entryX=0.833;entryY=0.633;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="7" target="rol_usuario">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="160" y="410" as="sourcePoint"/>
+                        <mxPoint x="160" y="325" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" value="ESPECIES_DINOSAURIO&lt;br style=&quot;&quot;&gt;(Estática)&lt;br style=&quot;&quot;&gt;&lt;br style=&quot;&quot;&gt;especies_id (PK)&lt;br style=&quot;&quot;&gt;codigo_trex&lt;br style=&quot;&quot;&gt;nombre&lt;br style=&quot;&quot;&gt;descripcion" style="whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#1A1A1A;fillColor=#18141D;" vertex="1" parent="1">
+                    <mxGeometry x="1410" y="65" width="170" height="140" as="geometry"/>
+                </mxCell>
+                <mxCell id="26" value="&lt;span style=&quot;background-color: rgb(26, 26, 26);&quot;&gt;RONDA_1&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="430" y="50" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="27" value="&lt;span style=&quot;background-color: rgb(26, 26, 26);&quot;&gt;RONDA_2&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;align=center;labelBackgroundColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="570" y="50" width="100" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="28" value="" style="endArrow=none;html=1;rounded=0;fontColor=#000000;exitX=0;exitY=0.25;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="estado_juego" target="26">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="460" y="230" as="sourcePoint"/>
+                        <mxPoint x="620" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="" style="endArrow=none;html=1;rounded=0;fontColor=#000000;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="estado_juego" target="27">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="540" y="145" as="sourcePoint"/>
+                        <mxPoint x="490" y="100" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
